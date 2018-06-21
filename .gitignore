@@ -54,8 +54,6 @@ local.properties
 # User-specific stuff:
 .idea/
 
-
-
 # Sensitive or high-churn files:
 .idea/**/dataSources/
 .idea/**/dataSources.ids
