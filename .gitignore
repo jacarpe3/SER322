@@ -53,6 +53,7 @@ local.properties
 
 # User-specific stuff:
 .idea/
+comics_sql.iml
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
