@@ -7,7 +7,7 @@ public class DBManager {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/ser322";
     private static final String UN = "postgres";
-    private static final String PW = "1034cdjC";
+    private static final String PW = "test123";
     private static DBManager db = null;
     private static Connection c;
 
