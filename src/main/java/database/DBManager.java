@@ -16,7 +16,8 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public class DBManager {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/ser322";
+    private static final String psURL = "jdbc:postgresql://localhost:5432/";
+    private static final String dbURL = psURL + "ser322comics";
     private static final String UN = "postgres";
     private static final String PW = "test123";
     private static DBManager db = null;
@@ -45,40 +46,45 @@ public class DBManager {
     }
 
     /**
-     * Used to establish connection with the PostgreSQL database
-     * @return Connection to the PostgreSQL database
+     * Creates the database
      */
-    private Connection connect() {
-        Connection c = null;
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            //ignore
-        }
-        try {
-            c = DriverManager.getConnection(URL, UN, PW);
-            statusMsg = "Connected Successfully";
-        } catch (SQLException e) {
-            statusMsg = "Failed to connect!";
-        }
-        return c;
+    public void initiateDB() {
+        c = connect(psURL);
+        executeUpdateQuery(SQL.Create.db);
+        closeConnection();
+    }
+
+    /**
+     * Populates the database with data
+     */
+    public void populateDB() {
+        getInstance().modify(
+                SQL.Create.extension,
+                SQL.Create.tablePublisher,
+                SQL.Create.tableContributor,
+                SQL.Create.tableCovers,
+                SQL.Create.tableSeries,
+                SQL.Create.tableComics,
+                SQL.Create.tableComicWriters,
+                SQL.Create.tableArtistRoles,
+                SQL.Create.tableComicArtists,
+                SQL.Create.tableComicCovers,
+
+                SQL.Insert.publisher,
+                SQL.Insert.contributor,
+                SQL.Insert.artistRoles,
+                SQL.Insert.series
+        );
     }
 
     /**
      * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
      * @param sqlQuery sql string to execute
      */
-    public void modify(String sqlQuery) {
-        c = connect();
-        try {
-            Statement stmt = c.createStatement();
-            stmt.executeUpdate(sqlQuery);
-            stmt.close();
-            c.close();
-        } catch (SQLException e) {
-            statusMsg = "Query failed!";
-        }
-
+    public void modify(String... sqlQuery) {
+        c = connect(dbURL);
+        executeUpdateQuery(sqlQuery);
+        closeConnection();
     }
 
     /**
@@ -87,7 +93,7 @@ public class DBManager {
      * @param sqlQuery sql query string to execute
      */
     public List<ComicEntity> query(String sqlQuery) {
-        c = connect();
+        c = connect(dbURL);
         List<ComicEntity> comicEntityList = new ArrayList<>();
         try {
             Statement stmt = c.createStatement();
@@ -119,7 +125,7 @@ public class DBManager {
      * @param coverID the coverID of the image
      */
     public void insertImage(File file, int coverID) {
-        c = connect();
+        c = connect(dbURL);
         try {
             FileInputStream stream = new FileInputStream(file);
             PreparedStatement ps = c.prepareStatement("INSERT INTO covers VALUES (?, ?)");
@@ -141,7 +147,7 @@ public class DBManager {
      * @return BufferedImage object of the image
      */
     public BufferedImage retrieveImage(int coverID) {
-        c = connect();
+        c = connect(dbURL);
         try {
             PreparedStatement ps = c.prepareStatement("SELECT coverImage FROM covers WHERE coverID = ?");
             ps.setInt(1, coverID);
@@ -155,6 +161,53 @@ public class DBManager {
         }
         statusMsg = "No image found!";
         return null;
+    }
+
+    /**
+     * Used to establish connection with the PostgreSQL database
+     * @return Connection to the PostgreSQL database
+     */
+    private static Connection connect(String url) {
+        Connection c = null;
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            //ignore
+        }
+        try {
+            c = DriverManager.getConnection(url, UN, PW);
+            statusMsg = "Connected Successfully";
+        } catch (SQLException e) {
+            statusMsg = "Failed to connect!";
+        }
+        return c;
+    }
+
+    /**
+     * Private supporting method for executing queries
+     * @param sqlQuery one or more SQL queries to be executed
+     */
+    private void executeUpdateQuery(String... sqlQuery) {
+        try {
+            Statement stmt = c.createStatement();
+            for (int i = 0; i < sqlQuery.length; i++) {
+                stmt.executeUpdate(sqlQuery[i]);
+            }
+            stmt.close();
+        } catch (SQLException e) {
+            statusMsg = "Query failed!";
+        }
+    }
+
+    /**
+     * Closes the open database connection
+     */
+    private void closeConnection() {
+        try {
+            c.close();
+        } catch (SQLException e) {
+            statusMsg = "Unable to close connection!";
+        }
     }
 
 }
