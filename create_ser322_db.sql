@@ -15,32 +15,88 @@ CREATE TABLE Contributor (
 CREATE TABLE Covers (
 	coverID SERIAL PRIMARY KEY,
 	value NUMERIC,
-	coverImage bytea
+	artist INTEGER REFERENCES Contributor(contribID),
+	coverImage bytea,
+	thumbnailImage bytea
 );
 CREATE TABLE Series (
-	seriesID SERIAL PRIMARY KEY,
+	seriesUPC UPC PRIMARY KEY,
 	seriesName VARCHAR (255)
 );
 CREATE TABLE Comics (
-	comicISBN ISBN PRIMARY KEY,
-	seriesID INTEGER REFERENCES Series(seriesID),
+	comicID SERIAL PRIMARY KEY,
+	comicSerial ISSN,
+	seriesUPC UPC REFERENCES Series(seriesUPC),
 	issueNum INTEGER,
 	issueTitle VARCHAR (255),
-	pubID INTEGER REFERENCES Publisher(pubID),
-	pubDate DATE
+	pub INTEGER REFERENCES Publisher(pubID),
+	pubDate DATE,
+	UNIQUE (comicSerial, seriesUPC)
 );
 CREATE TABLE ComicWriters (
-	comicISBN ISBN REFERENCES Comics(comicISBN),
-	writerID INTEGER REFERENCES Contributor(contribID),
-	PRIMARY KEY (comicISBN, writerID)
+	comic INTEGER REFERENCES Comics(comicID),
+	writer INTEGER REFERENCES Contributor(contribID),
+	PRIMARY KEY (comicID, writerID)
 );
 CREATE TABLE ComicArtists (
-	comicISBN ISBN REFERENCES Comics(comicISBN),
-	artistID INTEGER REFERENCES Contributor(contribID),
-	PRIMARY KEY (comicISBN, artistID)
+	comic INTEGER REFERENCES Comics(comicID),
+	artist INTEGER REFERENCES Contributor(contribID),
+	role INTEGER REFERENCES artistRoles(roleID),
+	PRIMARY KEY (comicID, artistID, role)
 );
 CREATE TABLE ComicCovers (
-	comicISBN ISBN REFERENCES Comics(comicISBN),
+	comicID INTEGER REFERENCES Comics(comicID),
 	coverID INTEGER REFERENCES Covers(coverID),
-	PRIMARY KEY (comicISBN, coverID)
+	PRIMARY KEY (comicID, coverID)
 );
+CREATE TABLE artistRoles (
+	roleID SERIAL PRIMARY KEY,
+	roleName VARCHAR (24)
+);
+
+-- Populate some initial data
+INSERT INTO Publisher (name) VALUES
+	('Dark Horse Comics'),
+	('Titan Comics'),
+	('Marvel Comics'),
+	('Image Comics'),
+	('DC Entertainment');
+
+INSERT INTO Conbributor (fName, lName) VALUES
+	('Scott', 'Shaw'),
+	('Peter', 'Kuper'),
+	('Jimmy', 'Pulmiotti'),
+	('Chris', 'Roberson'),
+	('Georges', 'Jeanty'),
+	('Karl', 'Story'),
+	('Wes', 'Dzioba'),
+	('Dan', 'Dos Santos'),
+	('Adam', 'Hughes'),
+	('Cavan', 'Scott'),
+	('Rachael', 'Scott'),
+	('Nick', 'Abadzis'),
+	('Mariano', 'Laclaustra'),
+	('Arianna', 'Florean'),
+	('Giorgia', 'Sposito'),
+	('Alex', 'Paknadel'),
+	('I.N.J.', 'Culbard'),
+	('Triona', 'Farrell'),
+	('Emma', 'Beeby'),
+	('Gordon', 'Rennie'),
+	('Katy', 'Rex'),
+	('Ivan', 'Rodriguez'),
+	('Wellington', 'Diaz'),
+	('Lolanda', 'Zanfardino'),
+	('Rodrigo', 'Fernandes'),
+	('George', 'Mann');
+
+
+INSERT INTO artistRoles (roleName) VALUES
+	('Artist'),
+	('Penciller'),
+	('Inker'),
+	('Colorist'),
+
+INSERT INTO Series (seriesUPC, seriesName) VALUES
+	('761568000849', 'Serenity'),
+	('074470618263', 'Doctor Who');
