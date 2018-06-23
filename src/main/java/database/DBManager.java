@@ -1,5 +1,8 @@
 package database;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,7 @@ public class DBManager {
     private static final String PW = "test123";
     private static DBManager db = null;
     private static Connection c;
+    private static String statusMsg;
 
     // Locked constructor for Singleton class
     private DBManager() {}
@@ -25,11 +29,18 @@ public class DBManager {
      * If the DBManager instance is null it is instantiated and returned
      * @return DBManager instance
      */
-    public static DBManager getInstance() {
+    public static synchronized DBManager getInstance() {
         if (db == null) {
             db = new DBManager();
         }
         return db;
+    }
+
+    /**
+     * @return Status message for success or failure of a procedure/execution
+     */
+    public static String getStatusMsg() {
+        return statusMsg;
     }
 
     /**
@@ -41,56 +52,106 @@ public class DBManager {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Class not found " + e);
+            statusMsg = e.getMessage();
         }
         try {
             c = DriverManager.getConnection(URL, UN, PW);
-            System.out.println("Connected Successfully");
+            statusMsg = "Connected Successfully";
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            statusMsg = e.getMessage();
         }
         return c;
     }
 
     /**
      * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
-     * @param sqlQuery zero or more sql strings to execute
-     * @throws SQLException during statement creation and execution
+     * @param sqlQuery sql string to execute
      */
-    public void modify(String... sqlQuery) throws SQLException {
+    public void modify(String sqlQuery) {
         c = connect();
-        Statement stmt = c.createStatement();
-        for (int i = 0; i < sqlQuery.length; i++) {
-            stmt.executeUpdate(sqlQuery[i]);
+        try {
+            Statement stmt = c.createStatement();
+            stmt.executeUpdate(sqlQuery);
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            statusMsg = e.getMessage();
         }
-        stmt.close();
-        c.close();
+
     }
 
     /**
      * Used for SELECT operation
-     * @param sqlQuery sql string to execute
-     * @throws SQLException during statement creation and execution
+     * @return Result List of comic entities matching query
+     * @param sqlQuery sql query string to execute
      */
-    public List<ComicEntity> query(String sqlQuery) throws SQLException {
+    public List<ComicEntity> query(String sqlQuery) {
         c = connect();
-        Statement stmt = c.createStatement();
         List<ComicEntity> comicEntityList = new ArrayList<>();
-        ResultSet rs = stmt.executeQuery(sqlQuery);
-        while (rs.next()) {
-            ComicEntity comic = new ComicEntity();
-            comic.setISBN(rs.getString("ISBN"));
-            comic.setIssueNum(rs.getInt("issueNum"));
-            comic.setPubDate(rs.getDate("pubDate"));
-            comic.setPubName(rs.getString("pubName"));
-            comic.setIssueTitle(rs.getString("issueTitle"));
-            comic.setSeriesName(rs.getString("issueName"));
-            comicEntityList.add(comic);
+        try {
+            Statement stmt = c.createStatement();
+            ResultSet rs = stmt.executeQuery(sqlQuery);
+            while (rs.next()) {
+                ComicEntity comic = new ComicEntity();
+                comic.setISBN(rs.getString("ISBN"));
+                comic.setIssueNum(rs.getInt("issueNum"));
+                comic.setPubDate(rs.getDate("pubDate"));
+                comic.setPubName(rs.getString("pubName"));
+                comic.setIssueTitle(rs.getString("issueTitle"));
+                comic.setSeriesName(rs.getString("issueName"));
+                comicEntityList.add(comic);
+            }
+            rs.close();
+            stmt.close();
+            c.close();
+        } catch (SQLException e) {
+            statusMsg = e.getMessage();
         }
-        rs.close();
-        stmt.close();
-        c.close();
         return comicEntityList;
+    }
+
+    /**
+     * Used to insert file into PostgreSQL database
+     * @param file the image file to insert
+     * @param coverID the coverID of the image
+     */
+    public void insertImage(File file, int coverID) {
+        c = connect();
+        try {
+            FileInputStream stream = new FileInputStream(file);
+            PreparedStatement ps = c.prepareStatement("INSERT INTO covers VALUES (?, ?)");
+            ps.setInt(1, coverID);
+            ps.setBinaryStream(2, stream, file.length());
+            ps.executeUpdate();
+            ps.close();
+            stream.close();
+            c.close();
+        } catch (SQLException | IOException e) {
+            statusMsg = "Error inserting image!";
+        }
+
+    }
+
+    /**
+     * Used to retrieve an image from PostgreSQL database
+     * @param coverID the coverID to retrieve
+     * @return BufferedImage object of the image
+     */
+    public BufferedImage retrieveImage(int coverID) {
+        c = connect();
+        try {
+            PreparedStatement ps = c.prepareStatement("SELECT coverImage FROM covers WHERE coverID = ?");
+            ps.setInt(1, coverID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                InputStream stream = rs.getBinaryStream(1);
+                return ImageIO.read(stream);
+            }
+        } catch (SQLException | IOException e) {
+            statusMsg = "Error retrieving image!";
+        }
+        statusMsg = "No image found!";
+        return null;
     }
 
 }
