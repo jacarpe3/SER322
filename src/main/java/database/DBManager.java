@@ -53,13 +53,13 @@ public class DBManager {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            statusMsg = e.getMessage();
+            //ignore
         }
         try {
             c = DriverManager.getConnection(URL, UN, PW);
             statusMsg = "Connected Successfully";
         } catch (SQLException e) {
-            statusMsg = e.getMessage();
+            statusMsg = "Failed to connect!";
         }
         return c;
     }
@@ -76,7 +76,7 @@ public class DBManager {
             stmt.close();
             c.close();
         } catch (SQLException e) {
-            statusMsg = e.getMessage();
+            statusMsg = "Query failed!";
         }
 
     }
@@ -94,7 +94,7 @@ public class DBManager {
             ResultSet rs = stmt.executeQuery(sqlQuery);
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
-                comic.setISBN(rs.getString("ISBN"));
+                comic.setUPC(rs.getString("UPC"));
                 comic.setIssueNum(rs.getInt("issueNum"));
                 comic.setPubDate(rs.getDate("pubDate"));
                 comic.setPubName(rs.getString("pubName"));
@@ -106,8 +106,9 @@ public class DBManager {
             rs.close();
             stmt.close();
             c.close();
+            statusMsg = "Search found " + comicEntityList.size() + " results";
         } catch (SQLException | IOException e) {
-            statusMsg = e.getMessage();
+            statusMsg = "Query failed!";
         }
         return comicEntityList;
     }
