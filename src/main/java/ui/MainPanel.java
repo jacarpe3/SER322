@@ -1,7 +1,12 @@
 package ui;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
+
+import database.DBManager;
 
 public class MainPanel extends JPanel {
 	JLabel head = new JLabel("Comic Book Value Look Up Tool");
@@ -11,6 +16,13 @@ public class MainPanel extends JPanel {
 	JLabel message = new JLabel("Waiting for new Message");
 	public MainPanel() {
 		head.setFont(new Font("Dialog",1,40));
+		search.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(head);
 		this.add(input);
@@ -19,6 +31,7 @@ public class MainPanel extends JPanel {
 		this.add(message);
 	}
 	public static void main(String[] args) {
+		Object ob = DBManager.getInstance();
 		JFrame frame = new JFrame();
 		MainPanel mainPanel = new MainPanel();
 		frame.add(mainPanel);
