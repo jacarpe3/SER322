@@ -1,7 +1,14 @@
 package database;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Used to connect with and execute SQL queries with PostgreSQL database
+ * @author Josh Carpenter
+ * @version 1.0
+ */
 @SuppressWarnings("ConstantConditions")
 public class DBManager {
 
@@ -11,8 +18,13 @@ public class DBManager {
     private static DBManager db = null;
     private static Connection c;
 
+    // Locked constructor for Singleton class
     private DBManager() {}
 
+    /**
+     * If the DBManager instance is null it is instantiated and returned
+     * @return DBManager instance
+     */
     public static DBManager getInstance() {
         if (db == null) {
             db = new DBManager();
@@ -20,6 +32,10 @@ public class DBManager {
         return db;
     }
 
+    /**
+     * Used to establish connection with the PostgreSQL database
+     * @return Connection to the PostgreSQL database
+     */
     private Connection connect() {
         Connection c = null;
         try {
@@ -36,24 +52,45 @@ public class DBManager {
         return c;
     }
 
-    public void update(String sqlQuery) throws SQLException {
+    /**
+     * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
+     * @param sqlQuery zero or more sql strings to execute
+     * @throws SQLException during statement creation and execution
+     */
+    public void modify(String... sqlQuery) throws SQLException {
         c = connect();
         Statement stmt = c.createStatement();
-        stmt.executeUpdate(sqlQuery);
+        for (int i = 0; i < sqlQuery.length; i++) {
+            stmt.executeUpdate(sqlQuery[i]);
+        }
         stmt.close();
         c.close();
     }
 
-    public void query(String sqlQuery) throws SQLException {
+    /**
+     * Used for SELECT operation
+     * @param sqlQuery sql string to execute
+     * @throws SQLException during statement creation and execution
+     */
+    public List<ComicEntity> query(String sqlQuery) throws SQLException {
         c = connect();
         Statement stmt = c.createStatement();
+        List<ComicEntity> comicEntityList = new ArrayList<>();
         ResultSet rs = stmt.executeQuery(sqlQuery);
         while (rs.next()) {
-            //TODO implement
+            ComicEntity comic = new ComicEntity();
+            comic.setISBN(rs.getString("ISBN"));
+            comic.setIssueNum(rs.getInt("issueNum"));
+            comic.setPubDate(rs.getDate("pubDate"));
+            comic.setPubName(rs.getString("pubName"));
+            comic.setIssueTitle(rs.getString("issueTitle"));
+            comic.setSeriesName(rs.getString("issueName"));
+            comicEntityList.add(comic);
         }
         rs.close();
         stmt.close();
         c.close();
+        return comicEntityList;
     }
 
 }
