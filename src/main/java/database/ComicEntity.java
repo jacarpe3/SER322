@@ -13,7 +13,7 @@ public class ComicEntity {
 
     private int issueNum;
     private Date pubDate;
-    private String ISBN;
+    private String UPC;
     private String pubName;
     private String issueTitle;
     private String seriesName;
@@ -35,12 +35,12 @@ public class ComicEntity {
         this.pubDate = pubDate;
     }
 
-    public String getISBN() {
-        return ISBN;
+    public String getUPC() {
+        return UPC;
     }
 
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
+    public void setUPC(String UPC) {
+        this.UPC = UPC;
     }
 
     public String getPubName() {
