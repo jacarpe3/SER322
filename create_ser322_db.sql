@@ -36,22 +36,22 @@ CREATE TABLE Comics (
 CREATE TABLE ComicWriters (
 	comic INTEGER REFERENCES Comics(comicID),
 	writer INTEGER REFERENCES Contributor(contribID),
-	PRIMARY KEY (comicID, writerID)
+	PRIMARY KEY (comic, writer)
+);
+CREATE TABLE artistRoles (
+	roleID SERIAL PRIMARY KEY,
+	roleName VARCHAR (24)
 );
 CREATE TABLE ComicArtists (
 	comic INTEGER REFERENCES Comics(comicID),
 	artist INTEGER REFERENCES Contributor(contribID),
 	role INTEGER REFERENCES artistRoles(roleID),
-	PRIMARY KEY (comicID, artistID, role)
+	PRIMARY KEY (comic, artist, role)
 );
 CREATE TABLE ComicCovers (
-	comicID INTEGER REFERENCES Comics(comicID),
-	coverID INTEGER REFERENCES Covers(coverID),
-	PRIMARY KEY (comicID, coverID)
-);
-CREATE TABLE artistRoles (
-	roleID SERIAL PRIMARY KEY,
-	roleName VARCHAR (24)
+	comic INTEGER REFERENCES Comics(comicID),
+	cover INTEGER REFERENCES Covers(coverID),
+	PRIMARY KEY (comic, cover)
 );
 
 -- Populate some initial data
@@ -62,7 +62,7 @@ INSERT INTO Publisher (name) VALUES
 	('Image Comics'),
 	('DC Entertainment');
 
-INSERT INTO Conbributor (fName, lName) VALUES
+INSERT INTO Contributor (fName, lName) VALUES
 	('Scott', 'Shaw'),
 	('Peter', 'Kuper'),
 	('Jimmy', 'Pulmiotti'),
@@ -95,7 +95,7 @@ INSERT INTO artistRoles (roleName) VALUES
 	('Artist'),
 	('Penciller'),
 	('Inker'),
-	('Colorist'),
+	('Colorist');
 
 INSERT INTO Series (seriesUPC, seriesName) VALUES
 	('761568000849', 'Serenity'),
