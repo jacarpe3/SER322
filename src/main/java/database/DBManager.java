@@ -1,6 +1,7 @@
 package database;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
@@ -99,12 +100,13 @@ public class DBManager {
                 comic.setPubName(rs.getString("pubName"));
                 comic.setIssueTitle(rs.getString("issueTitle"));
                 comic.setSeriesName(rs.getString("issueName"));
+                comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream("CoverImage"))));
                 comicEntityList.add(comic);
             }
             rs.close();
             stmt.close();
             c.close();
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             statusMsg = e.getMessage();
         }
         return comicEntityList;
