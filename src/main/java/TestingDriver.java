@@ -1,5 +1,5 @@
 import database.DBManager;
-
+import database.SQL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +13,9 @@ import java.io.File;
 public class TestingDriver {
 
     public static void main(String[] args) throws Exception {
+
+        DBManager.getInstance().initiateDB();
+        DBManager.getInstance().populateDB();
 
         String t1 = "insert into players values (11, 'Tom Hanks', 'Reds', 'Outfielder', '1965');";
         String t2 = "insert into players values (12, 'Chris Williams', 'Rangers', 'First Base', '1975');";
