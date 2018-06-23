@@ -1,5 +1,6 @@
 package database;
 
+import javax.swing.ImageIcon;
 import java.sql.Date;
 
 /**
@@ -16,6 +17,7 @@ public class ComicEntity {
     private String pubName;
     private String issueTitle;
     private String seriesName;
+    private ImageIcon thumbnail;
 
     public int getIssueNum() {
         return issueNum;
@@ -63,5 +65,13 @@ public class ComicEntity {
 
     public void setSeriesName(String seriesName) {
         this.seriesName = seriesName;
+    }
+
+    public ImageIcon getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(ImageIcon thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }
