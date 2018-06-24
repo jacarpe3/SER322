@@ -157,11 +157,9 @@ public class DBManager {
      */
     private void updateCoverImage(int coverID) {
         c = connect(SQL.Database.DB_URL);
-        String path = "src/main/resources/thumb";
-        String ext = ".gif";
-        File file = new File(path + coverID + ext);
+        String file = "/images/" + coverID + ".gif";
         try {
-            FileInputStream stream = new FileInputStream(file);
+            InputStream stream = getClass().getResourceAsStream(file);
             PreparedStatement ps = c.prepareStatement(SQL.Update.THUMBNAIL_IMAGE);
             ps.setBinaryStream(1, stream, file.length());
             ps.setInt(2, coverID);
