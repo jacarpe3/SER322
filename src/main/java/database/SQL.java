@@ -121,6 +121,10 @@ public class SQL {
                     "('074470618263', 'Doctor Who');";
     }
 
+    public static class Update {
+        public static final String thumbnailImage =  "UPDATE covers SET thumbnailImage = ? WHERE coverID = ?";
+    }
+
     public static class Drop {
         public static final String db = "DROP DATABASE ser322comics;";
     }
