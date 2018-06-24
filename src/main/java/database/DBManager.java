@@ -52,6 +52,7 @@ public class DBManager {
         c = connect(psURL);
         executeUpdateQuery(SQL.Create.db);
         closeConnection();
+        statusMsg = "Database initialized";
     }
 
     /**
@@ -75,6 +76,8 @@ public class DBManager {
                 SQL.Insert.artistRoles,
                 SQL.Insert.series
         );
+
+        statusMsg = "Database ready";
     }
 
     /**
@@ -106,7 +109,7 @@ public class DBManager {
                 comic.setPubName(rs.getString("pubName"));
                 comic.setIssueTitle(rs.getString("issueTitle"));
                 comic.setSeriesName(rs.getString("issueName"));
-                comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream("CoverImage"))));
+                comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream("thumbnailImage"))));
                 comicEntityList.add(comic);
             }
             rs.close();
@@ -120,16 +123,14 @@ public class DBManager {
     }
 
     /**
-     * Used to insert file into PostgreSQL database
+     * Used to insert cover with image into PostgreSQL database
      * @param file the image file to insert
-     * @param coverID the coverID of the image
      */
-    public void insertImage(File file, int coverID) {
+    private void insertCover(File file) {
         c = connect(dbURL);
         try {
             FileInputStream stream = new FileInputStream(file);
             PreparedStatement ps = c.prepareStatement("INSERT INTO covers VALUES (?, ?)");
-            ps.setInt(1, coverID);
             ps.setBinaryStream(2, stream, file.length());
             ps.executeUpdate();
             ps.close();
@@ -139,28 +140,6 @@ public class DBManager {
             statusMsg = "Error inserting image!";
         }
 
-    }
-
-    /**
-     * Used to retrieve an image from PostgreSQL database
-     * @param coverID the coverID to retrieve
-     * @return BufferedImage object of the image
-     */
-    public BufferedImage retrieveImage(int coverID) {
-        c = connect(dbURL);
-        try {
-            PreparedStatement ps = c.prepareStatement("SELECT coverImage FROM covers WHERE coverID = ?");
-            ps.setInt(1, coverID);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                InputStream stream = rs.getBinaryStream(1);
-                return ImageIO.read(stream);
-            }
-        } catch (SQLException | IOException e) {
-            statusMsg = "Error retrieving image!";
-        }
-        statusMsg = "No image found!";
-        return null;
     }
 
     /**
