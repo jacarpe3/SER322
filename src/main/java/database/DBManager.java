@@ -2,7 +2,6 @@ package database;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -48,8 +47,9 @@ public class DBManager {
     /**
      * Creates the database
      */
-    public void initiateDB() {
+    public void initializeDB() {
         c = connect(psURL);
+        executeUpdateQuery(SQL.Drop.db);
         executeUpdateQuery(SQL.Create.db);
         closeConnection();
         statusMsg = "Database initialized";
@@ -155,7 +155,6 @@ public class DBManager {
         }
         try {
             c = DriverManager.getConnection(url, UN, PW);
-            statusMsg = "Connected Successfully";
         } catch (SQLException e) {
             statusMsg = "Failed to connect!";
         }
@@ -164,6 +163,7 @@ public class DBManager {
 
     /**
      * Private supporting method for executing queries
+     * Connection object must be active prior to its use (and closed after)
      * @param sqlQuery one or more SQL queries to be executed
      */
     private void executeUpdateQuery(String... sqlQuery) {
