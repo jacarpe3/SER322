@@ -54,6 +54,7 @@ local.properties
 # User-specific stuff:
 .idea/
 comics_sql.iml
+TestingDriver.java
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
