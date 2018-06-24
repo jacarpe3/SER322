@@ -16,10 +16,6 @@ import java.util.Map;
 @SuppressWarnings("ConstantConditions")
 public class DBManager {
 
-    private static final String psURL = "jdbc:postgresql://localhost:5432/";
-    private static final String dbURL = psURL + "ser322comics";
-    private static final String UN = "postgres";
-    private static final String PW = "test123";
     private static DBManager db = null;
     private static Connection c;
     private static String statusMsg;
@@ -49,9 +45,9 @@ public class DBManager {
      * Creates the database
      */
     public void initializeDB() {
-        c = connect(psURL);
-        executeUpdateQuery(SQL.Drop.db);
-        executeUpdateQuery(SQL.Create.db);
+        c = connect(SQL.Database.PS_URL);
+        executeUpdateQuery(SQL.Drop.DB);
+        executeUpdateQuery(SQL.Create.DB);
         closeConnection();
         statusMsg = "Database initialized";
     }
@@ -60,22 +56,23 @@ public class DBManager {
      * Populates the database with data
      */
     public void populateDB() {
+        statusMsg = "Populating database...";
         getInstance().modify(
-                SQL.Create.extension,
-                SQL.Create.tablePublisher,
-                SQL.Create.tableContributor,
-                SQL.Create.tableCovers,
-                SQL.Create.tableSeries,
-                SQL.Create.tableComics,
-                SQL.Create.tableComicWriters,
-                SQL.Create.tableArtistRoles,
-                SQL.Create.tableComicArtists,
-                SQL.Create.tableComicCovers,
+                SQL.Create.EXTENSION,
+                SQL.Create.TABLE_PUBLISHER,
+                SQL.Create.TABLE_CONTRIBUTOR,
+                SQL.Create.TABLE_COVERS,
+                SQL.Create.TABLE_SERIES,
+                SQL.Create.TABLE_COMICS,
+                SQL.Create.TABLE_COMIC_WRITERS,
+                SQL.Create.TABLE_ARTIST_ROLES,
+                SQL.Create.TABLE_COMIC_ARTISTS,
+                SQL.Create.TABLE_COMIC_COVERS,
 
-                SQL.Insert.publisher,
-                SQL.Insert.contributor,
-                SQL.Insert.artistRoles,
-                SQL.Insert.series
+                SQL.Insert.PUBLISHER,
+                SQL.Insert.CONTRIBUTOR,
+                SQL.Insert.ARTIST_ROLES,
+                SQL.Insert.SERIES
         );
 
 //        for (int i = 1; i <= 30; i++) {
@@ -91,20 +88,20 @@ public class DBManager {
      * @param params Given search criteria in the text fields
      */
     public List<ComicEntity> query(Map<String, String> params) {
-        c = connect(dbURL);
+        c = connect(SQL.Database.DB_URL);
         List<ComicEntity> comicEntityList = new ArrayList<>();
         try {
             Statement stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery(buildQuery(params));
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
-                comic.setUPC(rs.getString("UPC"));
-                comic.setIssueNum(rs.getInt("issueNum"));
-                comic.setPubDate(rs.getDate("pubDate"));
-                comic.setPubName(rs.getString("pubName"));
-                comic.setIssueTitle(rs.getString("issueTitle"));
-                comic.setSeriesName(rs.getString("issueName"));
-                comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream("thumbnailImage"))));
+                comic.setUPC(rs.getString(SQL.Columns.SERIES_UPC));
+                comic.setIssueNum(rs.getInt(SQL.Columns.ISSUE_NUM));
+                comic.setPubDate(rs.getDate(SQL.Columns.PUB_DATE));
+                comic.setPubName(rs.getString(SQL.Columns.PUB_NAME));
+                comic.setIssueTitle(rs.getString(SQL.Columns.ISSUE_TITLE));
+                comic.setSeriesName(rs.getString(SQL.Columns.SERIES_NAME));
+                comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream(SQL.Columns.THUMB_IMAGE))));
                 comicEntityList.add(comic);
             }
             rs.close();
@@ -122,7 +119,7 @@ public class DBManager {
      * @param sqlQuery sql string to execute
      */
     private void modify(String... sqlQuery) {
-        c = connect(dbURL);
+        c = connect(SQL.Database.DB_URL);
         executeUpdateQuery(sqlQuery);
         closeConnection();
     }
@@ -147,7 +144,7 @@ public class DBManager {
             if (count < params.size()) {
                 sb.append(" AND ");
             } else {
-                sb.append(" ORDER BY ").append(Constants.Search.issueTitle).append(" ASC;");
+                sb.append(" ORDER BY ").append(SQL.Columns.ISSUE_TITLE).append(" ASC;");
             }
         }
         return sb.toString();
@@ -159,13 +156,13 @@ public class DBManager {
      * @param coverID coverID to update
      */
     private void updateCoverImage(int coverID) {
-        c = connect(dbURL);
+        c = connect(SQL.Database.DB_URL);
         String path = "src/main/resources/thumb";
         String ext = ".gif";
         File file = new File(path + coverID + ext);
         try {
             FileInputStream stream = new FileInputStream(file);
-            PreparedStatement ps = c.prepareStatement(SQL.Update.thumbnailImage);
+            PreparedStatement ps = c.prepareStatement(SQL.Update.THUMBNAIL_IMAGE);
             ps.setBinaryStream(1, stream, file.length());
             ps.setInt(2, coverID);
             ps.executeUpdate();
@@ -189,7 +186,7 @@ public class DBManager {
             //ignore
         }
         try {
-            c = DriverManager.getConnection(url, UN, PW);
+            c = DriverManager.getConnection(url, SQL.Database.UN, SQL.Database.PW);
         } catch (SQLException e) {
             statusMsg = "Failed to connect!";
         }
