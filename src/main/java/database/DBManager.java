@@ -6,6 +6,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to connect with and execute SQL queries with PostgreSQL database
@@ -77,30 +78,24 @@ public class DBManager {
                 SQL.Insert.series
         );
 
-        statusMsg = "Database ready";
-    }
+//        for (int i = 1; i <= 30; i++) {
+//            updateCoverImage(i);
+//        }
 
-    /**
-     * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
-     * @param sqlQuery sql string to execute
-     */
-    public void modify(String... sqlQuery) {
-        c = connect(dbURL);
-        executeUpdateQuery(sqlQuery);
-        closeConnection();
+        statusMsg = "Database ready";
     }
 
     /**
      * Used for SELECT operation
      * @return Result List of comic entities matching query
-     * @param sqlQuery sql query string to execute
+     * @param params Given search criteria in the text fields
      */
-    public List<ComicEntity> query(String sqlQuery) {
+    public List<ComicEntity> query(Map<String, String> params) {
         c = connect(dbURL);
         List<ComicEntity> comicEntityList = new ArrayList<>();
         try {
             Statement stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery(sqlQuery);
+            ResultSet rs = stmt.executeQuery(buildQuery(params));
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
                 comic.setUPC(rs.getString("UPC"));
@@ -123,15 +118,56 @@ public class DBManager {
     }
 
     /**
-     * Used to insert cover with image into PostgreSQL database
-     * @param file the image file to insert
+     * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
+     * @param sqlQuery sql string to execute
      */
-    private void insertCover(File file) {
+    private void modify(String... sqlQuery) {
         c = connect(dbURL);
+        executeUpdateQuery(sqlQuery);
+        closeConnection();
+    }
+
+    /**
+     * Builds the search query based on which parameters are given
+     * Search parameters MUST be passed in this order: {seriesUPC, fName, lName, series, title, pub}
+     * @param params variable arguments String array containing search parameters
+     * @return String object representing the SQL query
+     */
+    private static String buildQuery(Map<String, String> params) {
+
+        StringBuilder sb = new StringBuilder("SELECT * FROM ser322comics WHERE ");
+
+        int count = 0;
+        for (String param : params.keySet()) {
+            count++;
+            if (!params.get(param).isEmpty()) {
+                String thisParam = param + " = '" + params.get(param) + "'";
+                sb.append(thisParam);
+            }
+            if (count < params.size()) {
+                sb.append(" AND ");
+            } else {
+                sb.append(" ORDER BY ").append(Constants.Search.issueTitle).append(" ASC;");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Used to update cover images in covers table
+     * Assumes file name matches the coverID
+     * @param coverID coverID to update
+     */
+    private void updateCoverImage(int coverID) {
+        c = connect(dbURL);
+        String path = "src/main/resources/thumb";
+        String ext = ".gif";
+        File file = new File(path + coverID + ext);
         try {
             FileInputStream stream = new FileInputStream(file);
-            PreparedStatement ps = c.prepareStatement("INSERT INTO covers VALUES (?, ?)");
-            ps.setBinaryStream(2, stream, file.length());
+            PreparedStatement ps = c.prepareStatement(SQL.Update.thumbnailImage);
+            ps.setBinaryStream(1, stream, file.length());
+            ps.setInt(2, coverID);
             ps.executeUpdate();
             ps.close();
             stream.close();
@@ -139,7 +175,6 @@ public class DBManager {
         } catch (SQLException | IOException e) {
             statusMsg = "Error inserting image!";
         }
-
     }
 
     /**
