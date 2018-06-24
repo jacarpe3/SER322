@@ -1,8 +1,8 @@
 package ui;
 
 import database.ComicEntity;
-import database.Constants;
 import database.DBManager;
+import database.SQL;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.List;
@@ -45,22 +45,22 @@ public class InputPanel extends JPanel {
 	public List<ComicEntity> getResultsList() {
         Map<String, String> params = new HashMap<>();
         if (!isbnTF.getText().isEmpty()) {
-            params.put(Constants.Search.seriesUPC, isbnTF.getText());
+            params.put(SQL.Columns.SERIES_UPC, isbnTF.getText());
         }
         if (!contributorFirstNameTF.getText().isEmpty()) {
-            params.put(Constants.Search.contribFName, contributorFirstNameTF.getText());
+            params.put(SQL.Columns.CONTRIB_FNAME, contributorFirstNameTF.getText());
         }
         if (!contributorLastNameTF.getText().isEmpty()) {
-            params.put(Constants.Search.contribLName, contributorLastNameTF.getText());
+            params.put(SQL.Columns.CONTRIB_LNAME, contributorLastNameTF.getText());
         }
         if (!seriesNameTF.getText().isEmpty()) {
-            params.put(Constants.Search.seriesName, seriesNameTF.getText());
+            params.put(SQL.Columns.SERIES_NAME, seriesNameTF.getText());
         }
         if (!publisherNameTF.getText().isEmpty()) {
-            params.put(Constants.Search.pubName, publisherNameTF.getText());
+            params.put(SQL.Columns.PUB_NAME, publisherNameTF.getText());
         }
         if (!issueTitleTF.getText().isEmpty()) {
-            params.put(Constants.Search.issueTitle, issueTitleTF.getText());
+            params.put(SQL.Columns.ISSUE_TITLE, issueTitleTF.getText());
         }
 	    return DBManager.getInstance().query(params);
     }

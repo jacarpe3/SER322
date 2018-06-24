@@ -55,6 +55,7 @@ local.properties
 .idea/
 comics_sql.iml
 TestingDriver.java
+META-INF/
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
