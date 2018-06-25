@@ -71,12 +71,15 @@ public class DBManager {
 
                 SQL.Insert.PUBLISHER,
                 SQL.Insert.CONTRIBUTOR,
+                SQL.Insert.SERIES,
+                SQL.Insert.COMICS,
                 SQL.Insert.ARTIST_ROLES,
-                SQL.Insert.SERIES
+                SQL.Insert.COMIC_WRITERS,
+                SQL.Insert.COMIC_ARTISTS
         );
 
 //        for (int i = 1; i <= 30; i++) {
-//            updateCoverImage(i);
+//            updateThumbnailImage(i);
 //        }
 
         statusMsg = "Database ready";
@@ -151,17 +154,37 @@ public class DBManager {
     }
 
     /**
+     * Used to update thumbnail images in covers table
+     * Assumes file name matches the coverID
+     * @param coverID coverID to update
+     */
+    public void updateThumbnailImage(int coverID) {
+        String fileLoc = "/images/thumb" + coverID + ".gif";
+        updateImage(SQL.Update.THUMBNAIL_IMAGE, fileLoc, coverID);
+    }
+
+    /**
      * Used to update cover images in covers table
      * Assumes file name matches the coverID
      * @param coverID coverID to update
      */
-    private void updateCoverImage(int coverID) {
+    public void updateCoverImage(int coverID) {
+        String fileLoc = "/images/" + coverID + ".png";
+        updateImage(SQL.Update.COVER_IMAGE, fileLoc, coverID);
+    }
+
+    /**
+     * Private supporting method to insert images into database
+     * @param stmt SQL prepared statement to run
+     * @param fileLoc the string representation of the file's location/name
+     * @param coverID coverID you wish to update
+     */
+    private void updateImage(String stmt, String fileLoc, int coverID) {
         c = connect(SQL.Database.DB_URL);
-        String file = "/images/" + coverID + ".gif";
         try {
-            InputStream stream = getClass().getResourceAsStream(file);
-            PreparedStatement ps = c.prepareStatement(SQL.Update.THUMBNAIL_IMAGE);
-            ps.setBinaryStream(1, stream, file.length());
+            InputStream stream = getClass().getResourceAsStream(fileLoc);
+            PreparedStatement ps = c.prepareStatement(stmt);
+            ps.setBinaryStream(1, stream);
             ps.setInt(2, coverID);
             ps.executeUpdate();
             ps.close();
