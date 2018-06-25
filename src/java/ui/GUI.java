@@ -38,7 +38,4 @@ public class GUI {
         return main;
     }
 
-    public static JFrame getFrame() {
-        return frame;
-    }
 }
