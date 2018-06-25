@@ -20,7 +20,6 @@ public class MainPanel extends JPanel {
 
 	public MainPanel() {
         JSeparator separator = new JSeparator();
-
         JLabel head = new JLabel("Comic Book Value Look Up Tool");
         JLabel upc = new JLabel("Series UPC");
         JLabel contributorFirstName = new JLabel("Contributor First Name");
@@ -29,15 +28,12 @@ public class MainPanel extends JPanel {
         JLabel seriesName = new JLabel("Series Name");
         JLabel publisherName = new JLabel("Publisher Name");
         JLabel message = new JLabel("Waiting for new Message");
-
         JPanel status = new JPanel(new BorderLayout());
-        status.add(message, BorderLayout.SOUTH);
-
         JButton btnSearch = new JButton("Search");
         JButton btnClear = new JButton("Clear");
-
         DataPanel resultsTable = new DataPanel();
 
+        status.add(message, BorderLayout.SOUTH);
 		head.setFont(new Font("Dialog",1,40));
 		head.setForeground(Color.BLUE);
 
@@ -102,6 +98,16 @@ public class MainPanel extends JPanel {
                         .addComponent(resultsTable)
                         .addComponent(status)
         );
+
+        btnSearch.addActionListener(e -> resultsTable.refresh());
+        btnClear.addActionListener(e -> {
+            upcTF.setText("");
+            seriesNameTF.setText("");
+            issueTitleTF.setText("");
+            contributorFirstNameTF.setText("");
+            contributorLastNameTF.setText("");
+            publisherNameTF.setText("");
+        });
 
 	}
 
