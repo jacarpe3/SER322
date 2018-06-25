@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.io.*;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,12 +100,14 @@ public class DBManager {
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
                 comic.setUPC(rs.getString(SQL.Columns.SERIES_UPC));
-                comic.setIssueNum(rs.getInt(SQL.Columns.ISSUE_NUM));
-                comic.setPubDate(rs.getDate(SQL.Columns.PUB_DATE));
+                comic.setIssueNum(rs.getString(SQL.Columns.ISSUE_NUM));
+                comic.setPubDate(rs.getObject(SQL.Columns.PUB_DATE, LocalDate.class));
                 comic.setPubName(rs.getString(SQL.Columns.PUB_NAME));
                 comic.setIssueTitle(rs.getString(SQL.Columns.ISSUE_TITLE));
                 comic.setSeriesName(rs.getString(SQL.Columns.SERIES_NAME));
+                comic.setValue(rs.getDouble(SQL.Columns.VALUE));
                 comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream(SQL.Columns.THUMB_IMAGE))));
+                comic.setCover(new ImageIcon(ImageIO.read(rs.getBinaryStream(SQL.Columns.COVER_IMAGE))));
                 comicEntityList.add(comic);
             }
             rs.close();

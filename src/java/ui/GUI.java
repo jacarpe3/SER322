@@ -1,23 +1,28 @@
 package ui;
 
+import database.DBManager;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class GUI {
 
     private static MainPanel main;
+    private static JFrame frame;
 
     public static void main(String[] args) {
+        DBManager.getInstance().initializeDB();
+        DBManager.getInstance().populateDB();
         initializeGUI();
     }
 
     public static void initializeGUI() {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double height = (screenSize.height * 0.8);
-        double width = screenSize.width * 0.8;
+        double height = (screenSize.height * 0.65);
+        double width = screenSize.width * 0.65;
 
-        JFrame frame = new JFrame();
+        frame = new JFrame();
         main = new MainPanel();
         frame.add(main);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -31,5 +36,9 @@ public class GUI {
 
     public static MainPanel getMainPanel() {
         return main;
+    }
+
+    public static JFrame getFrame() {
+        return frame;
     }
 }

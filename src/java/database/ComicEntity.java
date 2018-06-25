@@ -1,7 +1,7 @@
 package database;
 
 import javax.swing.ImageIcon;
-import java.sql.Date;
+import java.time.LocalDate;
 
 /**
  * Represents a comic entity and contains all attributes as variables.
@@ -11,31 +11,31 @@ import java.sql.Date;
  */
 public class ComicEntity {
 
-    private int issueNum;
     private double value;
-    private Date pubDate;
+    private LocalDate pubDate;
     private String UPC;
     private String pubName;
     private String issueTitle;
     private String seriesName;
     private String writer;
     private String artist;
+    private String issueNum;
     private ImageIcon cover;
     private ImageIcon thumbnail;
 
-    public int getIssueNum() {
+    public String getIssueNum() {
         return issueNum;
     }
 
-    public void setIssueNum(int issueNum) {
+    public void setIssueNum(String issueNum) {
         this.issueNum = issueNum;
     }
 
-    public Date getPubDate() {
+    public LocalDate getPubDate() {
         return pubDate;
     }
 
-    public void setPubDate(Date pubDate) {
+    public void setPubDate(LocalDate pubDate) {
         this.pubDate = pubDate;
     }
 

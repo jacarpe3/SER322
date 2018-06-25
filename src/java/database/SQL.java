@@ -24,6 +24,8 @@ public class SQL {
         public static final String PUB_DATE = "pubDate";
         public static final String ISSUE_NUM = "issueNum";
         public static final String THUMB_IMAGE = "thumbnailImage";
+        public static final String COVER_IMAGE = "coverImage";
+        public static final String VALUE = "value";
     }
         
     public static class Create {
