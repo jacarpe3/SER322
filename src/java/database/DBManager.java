@@ -19,7 +19,6 @@ public class DBManager {
 
     private static DBManager db = null;
     private static Connection c;
-    private static String statusMsg;
 
     // Locked constructor for Singleton class
     private DBManager() {}
@@ -36,13 +35,6 @@ public class DBManager {
     }
 
     /**
-     * @return Status message for success or failure of a procedure/execution
-     */
-    public static String getStatusMsg() {
-        return statusMsg;
-    }
-
-    /**
      * Creates the database
      */
     public void initializeDB() {
@@ -50,14 +42,12 @@ public class DBManager {
         executeUpdateQuery(SQL.Drop.DB);
         executeUpdateQuery(SQL.Create.DB);
         closeConnection();
-        statusMsg = "Database initialized";
     }
 
     /**
      * Populates the database with data
      */
     public void populateDB() {
-        statusMsg = "Populating database...";
         getInstance().modify(
                 SQL.Create.EXTENSION,
                 SQL.Create.TABLE_PUBLISHER,
@@ -83,7 +73,6 @@ public class DBManager {
 //            updateThumbnailImage(i);
 //        }
 
-        statusMsg = "Database ready";
     }
 
     /**
@@ -113,9 +102,8 @@ public class DBManager {
             rs.close();
             stmt.close();
             c.close();
-            statusMsg = "Search found " + comicEntityList.size() + " results";
         } catch (SQLException | IOException e) {
-            statusMsg = "Query failed!";
+            //Ignore
         }
         return comicEntityList;
     }
@@ -194,7 +182,7 @@ public class DBManager {
             stream.close();
             c.close();
         } catch (SQLException | IOException e) {
-            statusMsg = "Error inserting image!";
+            //Ignore
         }
     }
 
@@ -207,12 +195,12 @@ public class DBManager {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            //ignore
+            //Ignore
         }
         try {
             c = DriverManager.getConnection(url, SQL.Database.UN, SQL.Database.PW);
         } catch (SQLException e) {
-            statusMsg = "Failed to connect!";
+            //Ignore
         }
         return c;
     }
@@ -230,7 +218,7 @@ public class DBManager {
             }
             stmt.close();
         } catch (SQLException e) {
-            statusMsg = "Query failed!";
+            //Ignore
         }
     }
 
@@ -241,7 +229,7 @@ public class DBManager {
         try {
             c.close();
         } catch (SQLException e) {
-            statusMsg = "Unable to close connection!";
+            //Ignore
         }
     }
 

@@ -17,6 +17,7 @@ public class MainPanel extends JPanel {
     private JTextField contributorLastNameTF = new JTextField();
     private JTextField seriesNameTF = new JTextField();
     private JTextField publisherNameTF = new JTextField();
+    private JLabel message = new JLabel("");
 
 	public MainPanel() {
         JSeparator separator = new JSeparator();
@@ -27,7 +28,6 @@ public class MainPanel extends JPanel {
         JLabel contributorLastName = new JLabel("Contributor Last Name");
         JLabel seriesName = new JLabel("Series Name");
         JLabel publisherName = new JLabel("Publisher Name");
-        JLabel message = new JLabel("Waiting for new Message");
         JPanel status = new JPanel(new BorderLayout());
         JButton btnSearch = new JButton("Search");
         JButton btnClear = new JButton("Clear");
@@ -107,6 +107,7 @@ public class MainPanel extends JPanel {
             contributorFirstNameTF.setText("");
             contributorLastNameTF.setText("");
             publisherNameTF.setText("");
+            message.setText("");
         });
 
 	}
@@ -132,6 +133,10 @@ public class MainPanel extends JPanel {
             params.put(SQL.Columns.ISSUE_TITLE, issueTitleTF.getText());
         }
         return DBManager.getInstance().query(params);
+    }
+
+    public void setMessage(String msg) {
+	    message.setText(msg);
     }
 
 }
