@@ -1,7 +1,6 @@
 package ui;
 
 import database.DBManager;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -38,7 +37,4 @@ public class GUI {
         return main;
     }
 
-    public static JFrame getFrame() {
-        return frame;
-    }
 }

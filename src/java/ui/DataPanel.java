@@ -27,8 +27,10 @@ public class DataPanel extends JPanel {
 	}
 
 	public void refresh() {
-	    table.setModel(new DefaultTableModel(getResultsData(), columns));
+	    Object[][] data = getResultsData();
+	    table.setModel(new DefaultTableModel(data, columns));
 	    formatTable(table);
+	    GUI.getMainPanel().setMessage(data.length + " search results");
     }
 
     private void formatTable(JTable table) {
