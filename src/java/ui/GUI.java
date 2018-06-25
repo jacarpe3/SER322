@@ -1,7 +1,6 @@
 package ui;
 
 import database.DBManager;
-
 import javax.swing.*;
 import java.awt.*;
 
