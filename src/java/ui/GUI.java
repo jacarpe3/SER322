@@ -7,7 +7,6 @@ import java.awt.*;
 public class GUI {
 
     private static MainPanel main;
-    private static JFrame frame;
 
     public static void main(String[] args) {
         DBManager.getInstance().initializeDB();
@@ -21,7 +20,7 @@ public class GUI {
         double height = (screenSize.height * 0.65);
         double width = screenSize.width * 0.65;
 
-        frame = new JFrame();
+        JFrame frame = new JFrame();
         main = new MainPanel();
         frame.add(main);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
