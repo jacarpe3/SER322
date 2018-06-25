@@ -71,8 +71,11 @@ public class DBManager {
 
                 SQL.Insert.PUBLISHER,
                 SQL.Insert.CONTRIBUTOR,
+                SQL.Insert.SERIES,
+                SQL.Insert.COMICS,
                 SQL.Insert.ARTIST_ROLES,
-                SQL.Insert.SERIES
+                SQL.Insert.COMIC_WRITERS,
+                SQL.Insert.COMIC_ARTISTS
         );
 
 //        for (int i = 1; i <= 30; i++) {
