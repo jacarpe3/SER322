@@ -285,6 +285,7 @@ public class SQL {
 
     public static class Update {
         public static final String THUMBNAIL_IMAGE =  "UPDATE covers SET thumbnailImage = ? WHERE coverID = ?";
+        public static final String COVER_IMAGE =  "UPDATE covers SET coverImage = ? WHERE coverID = ?";
     }
 
     public static class Drop {

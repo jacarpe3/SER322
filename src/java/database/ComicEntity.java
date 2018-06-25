@@ -12,11 +12,15 @@ import java.sql.Date;
 public class ComicEntity {
 
     private int issueNum;
+    private double value;
     private Date pubDate;
     private String UPC;
     private String pubName;
     private String issueTitle;
     private String seriesName;
+    private String writer;
+    private String artist;
+    private ImageIcon cover;
     private ImageIcon thumbnail;
 
     public int getIssueNum() {
@@ -73,5 +77,37 @@ public class ComicEntity {
 
     public void setThumbnail(ImageIcon thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public ImageIcon getCover() {
+        return cover;
+    }
+
+    public void setCover(ImageIcon cover) {
+        this.cover = cover;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
     }
 }
