@@ -20,7 +20,7 @@ public class MainPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+			//	DBManager.getInstance().query();
 			}
 		});
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -31,7 +31,6 @@ public class MainPanel extends JPanel {
 		this.add(message);
 	}
 	public static void main(String[] args) {
-		Object ob = DBManager.getInstance();
 		JFrame frame = new JFrame();
 		MainPanel mainPanel = new MainPanel();
 		frame.add(mainPanel);
