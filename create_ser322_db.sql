@@ -54,7 +54,7 @@ CREATE TABLE ComicCovers (
 
 CREATE VIEW fullComicListing AS
 WITH
-	artistlist AS (
+	ArtistList AS (
 		SELECT
 			comics.comicid AS comicid,
 			string_agg(
@@ -68,7 +68,7 @@ WITH
 			INNER JOIN artistroles ON comicartists.role = artistroles.roleid
 			INNER JOIN comics ON comicartists.comic = comics.comicid GROUP BY comicid
 	),
-	writerlist AS (
+	WriterList AS (
 		SELECT
 			comics.comicid AS comicid,
 			string_agg(
@@ -81,23 +81,29 @@ WITH
 			INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid
 	)
 	SELECT
-		comics.comicSerial,
-		comics.issueNum,
+		Covers.thumbnailImage,
+		Comics.comicSerial,
+		Comics.issueNum,
 		CASE
-			WHEN comics.issueTitle is NULL THEN
-				series.seriesName || ' ' || comics.issueNum
+			WHEN Comics.issueTitle is NULL THEN
+				Series.seriesName || ' ' || Comics.issueNum
 			ELSE
-				comics.issueTitle
+				Comics.issueTitle
 		END,
-		series.seriesName,
-		writerlist.writers,
-		artistlist.artists,
-		comics.value
+		Series.seriesName,
+		WriterList.writers,
+		ArtistList.artists,
+		Publisher.name,
+		Comics.pubDate,
+		Comics.value
     FROM
-		comics
-		INNER JOIN series ON comics.seriesUPC = series.seriesUPC
-		INNER JOIN writerlist ON writerlist.comicid = comics.comicid
-		INNER JOIN artistlist ON artistlist.comicid = comics.comicid;
+		Comics
+		INNER JOIN ComicCovers ON Comics.comicID = ComicCovers.comic
+		INNER JOIN Covers ON ComicCovers.cover = Covers.coverID
+		INNER JOIN Series ON Comics.seriesUPC = Series.seriesUPC
+		INNER JOIN WriterList ON WriterList.comicid = Comics.comicid
+		INNER JOIN ArtistList ON ArtistList.comicid = Comics.comicid
+		INNER JOIN Publisher ON Comics.Publisher = Publisher.pubID;
 
 -- Populate some initial data
 INSERT INTO Publisher (pubID, name) VALUES
