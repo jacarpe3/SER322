@@ -14,7 +14,6 @@ CREATE TABLE Contributor (
 );
 CREATE TABLE Covers (
 	coverID SERIAL PRIMARY KEY,
-	artist INTEGER REFERENCES Contributor(contribID),
 	thumbnailImage bytea
 );
 CREATE TABLE Series (
@@ -55,7 +54,7 @@ CREATE TABLE ComicCovers (
 
 CREATE VIEW fullComicListing AS
 WITH
-	artistlist AS (
+	ArtistList AS (
 		SELECT
 			comics.comicid AS comicid,
 			string_agg(
@@ -69,7 +68,7 @@ WITH
 			INNER JOIN artistroles ON comicartists.role = artistroles.roleid
 			INNER JOIN comics ON comicartists.comic = comics.comicid GROUP BY comicid
 	),
-	writerlist AS (
+	WriterList AS (
 		SELECT
 			comics.comicid AS comicid,
 			string_agg(
@@ -82,23 +81,29 @@ WITH
 			INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid
 	)
 	SELECT
-		comics.comicSerial,
-		comics.issueNum,
+		Covers.thumbnailImage,
+		Comics.comicSerial,
+		Comics.issueNum,
 		CASE
-			WHEN comics.issueTitle is NULL THEN
-				series.seriesName || ' ' || comics.issueNum
+			WHEN Comics.issueTitle is NULL THEN
+				Series.seriesName || ' ' || Comics.issueNum
 			ELSE
-				comics.issueTitle
+				Comics.issueTitle
 		END,
-		series.seriesName,
-		writerlist.writers,
-		artistlist.artists,
-		comics.value
+		Series.seriesName,
+		WriterList.writers,
+		ArtistList.artists,
+		Publisher.name,
+		Comics.pubDate,
+		Comics.value
     FROM
-		comics
-		INNER JOIN series ON comics.seriesUPC = series.seriesUPC
-		INNER JOIN writerlist ON writerlist.comicid = comics.comicid
-		INNER JOIN artistlist ON artistlist.comicid = comics.comicid;
+		Comics
+		INNER JOIN ComicCovers ON Comics.comicID = ComicCovers.comic
+		INNER JOIN Covers ON ComicCovers.cover = Covers.coverID
+		INNER JOIN Series ON Comics.seriesUPC = Series.seriesUPC
+		INNER JOIN WriterList ON WriterList.comicid = Comics.comicid
+		INNER JOIN ArtistList ON ArtistList.comicid = Comics.comicid
+		INNER JOIN Publisher ON Comics.Publisher = Publisher.pubID;
 
 -- Populate some initial data
 INSERT INTO Publisher (pubID, name) VALUES
@@ -138,7 +143,10 @@ INSERT INTO Contributor (contribID, fName, lName) VALUES
 	(26, 'Thiago', 'Ribeiro'),
 	(27, 'George', 'Mann'),
 	(28, '', 'Hi-Fi'),
-	(29, 'Carlos', 'Cabrera');
+	(29, 'Carlos', 'Cabrera'),
+	(30, 'Luis', 'Guerrero'),
+	(31, 'Tazio', 'Bettin'),
+	(32, 'Klebs', 'Jr');
 
 INSERT INTO Series (seriesUPC, seriesName) VALUES
 	('761568000849', 'Serenity'),
@@ -154,8 +162,8 @@ INSERT INTO Comics (comicID, comicSerial, seriesUPC, issueNum, issueTitle, publi
 	(3, '00131', '074470618263', '01C', 'The Lost Dimension Alpha', 2, '2017-09-01', '3.99'),
 	(4, '00111', '074470711117', '01A', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '1.99'),
 	(5, '00121', '074470711117', '01B', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '2.99'),
-	(6, '00111', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
-	(7, '00121', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
+	(6, '00911', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
+	(7, '00921', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
 	(8, '01011', '074470683001', '01A', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '3.99'),
 	(9, '01021', '074470683001', '01B', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '10.99'),
 	(10, '00111', '074470618317', '01A', 'The Lost Dimension Special #1', 2, '2017-10-01', '1.99'),
@@ -184,7 +192,8 @@ INSERT INTO artistRoles (roleID, roleName) VALUES
 	(1, 'Artist'),
 	(2, 'Penciller'),
 	(3, 'Inker'),
-	(4, 'Colorist');
+	(4, 'Colorist'),
+	(5, 'Cover Artist');
 
 INSERT INTO ComicWriters (comic, writer) VALUES
 	(1, 10),
@@ -219,6 +228,7 @@ INSERT INTO ComicWriters (comic, writer) VALUES
 	(18, 4),
 	(19, 4),
 	(20, 4),
+	(21, 4),
 	(22, 4),
 	(23, 4),
 	(24, 4),
@@ -229,8 +239,70 @@ INSERT INTO ComicWriters (comic, writer) VALUES
 	(29, 4),
 	(30, 4);
 
-INSERT INTO Covers (coverID, artist) VALUES
-	(0, 0);
+INSERT INTO Covers (coverID) VALUES
+	(0),
+	(1),
+	(2),
+	(3),
+	(4),
+	(5),
+	(6),
+	(7),
+	(8),
+	(9),
+	(10),
+	(11),
+	(12),
+	(13),
+	(14),
+	(15),
+	(16),
+	(17),
+	(18),
+	(19),
+	(20),
+	(21),
+	(22),
+	(23),
+	(24),
+	(25),
+	(26),
+	(27),
+	(28),
+	(29),
+	(30);
+
+INSERT INTO ComicCovers (comic, cover) VALUES
+	(1,1),
+	(2,2),
+	(3,3),
+	(4,4),
+	(5,5),
+	(6,6),
+	(7,7),
+	(8,8),
+	(9,9),
+	(10,10),
+	(11,11),
+	(12,12),
+	(13,13),
+	(14,14),
+	(15,15),
+	(16,16),
+	(17,17),
+	(18,18),
+	(19,19),
+	(20,20),
+	(21,21),
+	(22,22),
+	(23,23),
+	(24,24),
+	(25,25),
+	(26,26),
+	(27,27),
+	(28,28),
+	(29,29),
+	(30,30);
 
 INSERT INTO ComicArtists (comic, artist, role) VALUES
 	(1, 11, 1),
@@ -271,6 +343,7 @@ INSERT INTO ComicArtists (comic, artist, role) VALUES
 	(18, 5, 1),
 	(19, 5, 1),
 	(20, 5, 1),
+	(21, 5, 1),
 	(22, 5, 1),
 	(23, 5, 1),
 	(24, 5, 1),
@@ -291,4 +364,23 @@ INSERT INTO ComicArtists (comic, artist, role) VALUES
 	(27, 6, 1),
 	(28, 6, 1),
 	(29, 6, 1),
-	(30, 6, 1);
+	(30, 6, 1),
+	(3, 11, 5),
+	(3, 30, 5),
+	(6, 30, 5),
+	(6, 31, 5),
+	(10, 13, 5),
+	(14, 32, 5),
+	(18, 8, 5),
+	(19, 5, 5),
+	(20, 9, 5),
+	(21, 8, 5),
+	(22, 5, 5),
+	(23, 8, 5),
+	(24, 5, 5),
+	(25, 8, 5),
+	(26, 5, 5),
+	(27, 8, 5),
+	(28, 5, 5),
+	(29, 8, 5),
+	(30, 5, 5);
