@@ -4,8 +4,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.text.DateFormat;
 import java.text.Format;
 
-/*
- *	Use a formatter to format the cell Object
+/**
+ * Used for format rendering in JTable
+ * Taken in its entirety from http://www.camick.com/java/source/FormatRenderer.java
  */
 public class FormatRenderer extends DefaultTableCellRenderer
 {

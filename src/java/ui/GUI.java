@@ -4,16 +4,27 @@ import database.DBManager;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Main class for the GUI of the application
+ * @author Josh Carpenter, Yutian Zhang
+ * @version 1.0
+ */
 public class GUI {
 
     private static MainPanel main;
 
+    /**
+     * Main method to start program
+     */
     public static void main(String[] args) {
         DBManager.getInstance().initializeDB();
         DBManager.getInstance().populateDB();
         initializeGUI();
     }
 
+    /**
+     * Initializes the frame and adds main panel to it
+     */
     public static void initializeGUI() {
 
         JFrame frame = new JFrame();
@@ -28,6 +39,10 @@ public class GUI {
 
     }
 
+    /**
+     * Used to pass the main panel object out to other classes
+     * @return MainPanel object
+     */
     public static MainPanel getMainPanel() {
         return main;
     }
