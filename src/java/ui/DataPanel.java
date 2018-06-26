@@ -39,7 +39,7 @@ public class DataPanel extends JPanel {
         table.setAutoCreateRowSorter(true);
         table.getColumnModel().getColumn(0).setCellRenderer(table.getDefaultRenderer(ImageIcon.class));
         table.getColumnModel().getColumn(9).setCellRenderer(NumberRenderer.getCurrencyRenderer());
-        table.getColumnModel().getColumn(0).setPreferredWidth(90);
+        table.getColumnModel().getColumn(0).setPreferredWidth(91);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
         table.getColumnModel().getColumn(2).setPreferredWidth(150);
         table.getColumnModel().getColumn(3).setPreferredWidth(236);
@@ -48,7 +48,7 @@ public class DataPanel extends JPanel {
         table.getColumnModel().getColumn(6).setPreferredWidth(125);
         table.getColumnModel().getColumn(7).setPreferredWidth(100);
         table.getColumnModel().getColumn(8).setPreferredWidth(120);
-        table.getColumnModel().getColumn(9).setPreferredWidth(64);
+        table.getColumnModel().getColumn(9).setPreferredWidth(65);
         table.setRowHeight(140);
     }
 

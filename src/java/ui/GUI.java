@@ -16,15 +16,11 @@ public class GUI {
 
     public static void initializeGUI() {
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double height = (screenSize.height * 0.65);
-        double width = screenSize.width * 0.65;
-
         JFrame frame = new JFrame();
         main = new MainPanel();
         frame.add(main);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension((int)width, (int)height));
+        frame.setPreferredSize(new Dimension(1250, 700));
         frame.pack();
         frame.setResizable(true);
         frame.setVisible(true);
