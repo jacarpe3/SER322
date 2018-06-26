@@ -121,6 +121,7 @@ public class DBManager {
     /**
      * Builds the search query based on which parameters are given
      * Search parameters MUST be passed in this order: {seriesUPC, fName, lName, series, title, pub}
+     * Uses 'LIKE' to return partial matches
      * @param params variable arguments String array containing search parameters
      * @return String object representing the SQL query
      */
@@ -132,7 +133,7 @@ public class DBManager {
         for (String param : params.keySet()) {
             count++;
             if (!params.get(param).isEmpty()) {
-                String thisParam = param + " = '" + params.get(param) + "'";
+                String thisParam = param + " LIKE '%" + params.get(param) + "%'";
                 sb.append(thisParam);
             }
             if (count < params.size()) {
