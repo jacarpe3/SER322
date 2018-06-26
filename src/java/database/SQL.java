@@ -15,16 +15,15 @@ public class SQL {
     }
 
     public static class Columns {
-        public static final String SERIES_UPC = "seriesUPC";
-        public static final String CONTRIB_FNAME = "fName";
-        public static final String CONTRIB_LNAME = "lName";
+        public static final String SERIES_NO = "comicSerial";
+        public static final String WRITERS = "writers";
+        public static final String ARTISTS = "artists";
         public static final String SERIES_NAME = "seriesName";
         public static final String ISSUE_TITLE = "issueTitle";
         public static final String PUB_NAME = "name";
         public static final String PUB_DATE = "pubDate";
         public static final String ISSUE_NUM = "issueNum";
         public static final String THUMB_IMAGE = "thumbnailImage";
-        public static final String COVER_IMAGE = "coverImage";
         public static final String VALUE = "value";
     }
         

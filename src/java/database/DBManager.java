@@ -1,5 +1,6 @@
 package database;
 
+import ui.GUI;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.io.*;
@@ -48,6 +49,7 @@ public class DBManager {
      * Populates the database with data
      */
     public void populateDB() {
+        GUI.getMainPanel().setMessage("Populating database...");
         getInstance().modify(
                 SQL.Create.EXTENSION,
                 SQL.Create.TABLE_PUBLISHER,
@@ -59,19 +61,21 @@ public class DBManager {
                 SQL.Create.TABLE_ARTIST_ROLES,
                 SQL.Create.TABLE_COMIC_ARTISTS,
                 SQL.Create.TABLE_COMIC_COVERS,
-
+                SQL.Create.VIEW_COMIC_LISTING,
                 SQL.Insert.PUBLISHER,
                 SQL.Insert.CONTRIBUTOR,
                 SQL.Insert.SERIES,
                 SQL.Insert.COMICS,
                 SQL.Insert.ARTIST_ROLES,
                 SQL.Insert.COMIC_WRITERS,
+                SQL.Insert.COVERS,
                 SQL.Insert.COMIC_ARTISTS
         );
 
-//        for (int i = 1; i <= 30; i++) {
-//            updateThumbnailImage(i);
-//        }
+        GUI.getMainPanel().setMessage("Updating thumbnails...");
+        for (int i = 1; i <= 30; i++) {
+            updateImage(i);
+        }
 
     }
 
@@ -88,15 +92,16 @@ public class DBManager {
             ResultSet rs = stmt.executeQuery(buildQuery(params));
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
-                comic.setUPC(rs.getString(SQL.Columns.SERIES_UPC));
+                comic.setSeriesNo(rs.getString(SQL.Columns.SERIES_NO));
                 comic.setIssueNum(rs.getString(SQL.Columns.ISSUE_NUM));
                 comic.setPubDate(rs.getObject(SQL.Columns.PUB_DATE, LocalDate.class));
                 comic.setPubName(rs.getString(SQL.Columns.PUB_NAME));
                 comic.setIssueTitle(rs.getString(SQL.Columns.ISSUE_TITLE));
                 comic.setSeriesName(rs.getString(SQL.Columns.SERIES_NAME));
                 comic.setValue(rs.getDouble(SQL.Columns.VALUE));
+                comic.setWriter(rs.getString(SQL.Columns.WRITERS));
+                comic.setArtist(rs.getString(SQL.Columns.ARTISTS));
                 comic.setThumbnail(new ImageIcon(ImageIO.read(rs.getBinaryStream(SQL.Columns.THUMB_IMAGE))));
-                comic.setCover(new ImageIcon(ImageIO.read(rs.getBinaryStream(SQL.Columns.COVER_IMAGE))));
                 comicEntityList.add(comic);
             }
             rs.close();
@@ -127,7 +132,7 @@ public class DBManager {
      */
     private static String buildQuery(Map<String, String> params) {
 
-        StringBuilder sb = new StringBuilder("SELECT * FROM ser322comics WHERE ");
+        StringBuilder sb = new StringBuilder("SELECT * FROM fullComicListing WHERE ");
 
         int count = 0;
         for (String param : params.keySet()) {
@@ -150,32 +155,12 @@ public class DBManager {
      * Assumes file name matches the coverID
      * @param coverID coverID to update
      */
-    public void updateThumbnailImage(int coverID) {
-        String fileLoc = "/images/thumb" + coverID + ".gif";
-        updateImage(SQL.Update.THUMBNAIL_IMAGE, fileLoc, coverID);
-    }
-
-    /**
-     * Used to update cover images in covers table
-     * Assumes file name matches the coverID
-     * @param coverID coverID to update
-     */
-    public void updateCoverImage(int coverID) {
-        String fileLoc = "/images/" + coverID + ".png";
-        updateImage(SQL.Update.COVER_IMAGE, fileLoc, coverID);
-    }
-
-    /**
-     * Private supporting method to insert images into database
-     * @param stmt SQL prepared statement to run
-     * @param fileLoc the string representation of the file's location/name
-     * @param coverID coverID you wish to update
-     */
-    private void updateImage(String stmt, String fileLoc, int coverID) {
+    public void updateImage(int coverID) {
         c = connect(SQL.Database.DB_URL);
+        String fileLoc = "/images/" + coverID + ".jpg";
         try {
             InputStream stream = getClass().getResourceAsStream(fileLoc);
-            PreparedStatement ps = c.prepareStatement(stmt);
+            PreparedStatement ps = c.prepareStatement(SQL.Update.THUMBNAIL_IMAGE);
             ps.setBinaryStream(1, stream);
             ps.setInt(2, coverID);
             ps.executeUpdate();

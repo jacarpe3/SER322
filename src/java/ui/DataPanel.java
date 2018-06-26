@@ -76,7 +76,7 @@ public class DataPanel extends JPanel {
         Object[][] data = new Object[list.size()][columns.length];
 	    for (int i = 0; i < list.size(); i++) {
             data[i][0] = list.get(i).getThumbnail();
-            data[i][1] = list.get(i).getUPC();
+            data[i][1] = list.get(i).getSeriesNo();
             data[i][2] = list.get(i).getSeriesName();
             data[i][3] = list.get(i).getIssueTitle();
             data[i][4] = list.get(i).getIssueNum();

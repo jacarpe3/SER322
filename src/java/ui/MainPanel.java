@@ -17,9 +17,9 @@ import javax.swing.*;
 public class MainPanel extends JPanel {
 
     private JTextField upcTF = new JTextField();
-    private JTextField contributorFirstNameTF = new JTextField();
+    private JTextField writerTF = new JTextField();
     private JTextField issueTitleTF = new JTextField();
-    private JTextField contributorLastNameTF = new JTextField();
+    private JTextField artistTF = new JTextField();
     private JTextField seriesNameTF = new JTextField();
     private JTextField publisherNameTF = new JTextField();
     private JLabel message = new JLabel("");
@@ -30,10 +30,10 @@ public class MainPanel extends JPanel {
 	public MainPanel() {
         JSeparator separator = new JSeparator();
         JLabel head = new JLabel("Comic Book Value Look Up Tool");
-        JLabel upc = new JLabel("Series UPC");
-        JLabel contributorFirstName = new JLabel("Contributor First Name");
+        JLabel upc = new JLabel("Serial #");
+        JLabel writersName = new JLabel("Writer Name");
         JLabel issueTitle = new JLabel("Issue Title");
-        JLabel contributorLastName = new JLabel("Contributor Last Name");
+        JLabel artistsName = new JLabel("Artist Name");
         JLabel seriesName = new JLabel("Series Name");
         JLabel publisherName = new JLabel("Publisher Name");
         JPanel status = new JPanel(new BorderLayout());
@@ -42,7 +42,7 @@ public class MainPanel extends JPanel {
         DataPanel resultsTable = new DataPanel();
 
         status.add(message, BorderLayout.SOUTH);
-		head.setFont(new Font("Dialog",1,40));
+		head.setFont(new Font("Dialog",Font.BOLD,40));
 		head.setForeground(Color.BLUE);
 
         GroupLayout layout = new GroupLayout(this);
@@ -68,11 +68,11 @@ public class MainPanel extends JPanel {
                                         .addComponent(issueTitleTF)
                                         .addComponent(seriesNameTF))
                                 .addGroup(layout.createParallelGroup()
-                                        .addComponent(contributorFirstName)
-                                        .addComponent(contributorLastName))
+                                        .addComponent(writersName)
+                                        .addComponent(artistsName))
                                 .addGroup(layout.createParallelGroup()
-                                        .addComponent(contributorFirstNameTF)
-                                        .addComponent(contributorLastNameTF)))
+                                        .addComponent(writerTF)
+                                        .addComponent(artistTF)))
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnSearch)
                                 .addComponent(btnClear))
@@ -91,15 +91,15 @@ public class MainPanel extends JPanel {
                                 .addComponent(upcTF)
                                 .addComponent(issueTitle)
                                 .addComponent(issueTitleTF)
-                                .addComponent(contributorFirstName)
-                                .addComponent(contributorFirstNameTF))
+                                .addComponent(writersName)
+                                .addComponent(writerTF))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(publisherName)
                                 .addComponent(publisherNameTF)
                                 .addComponent(seriesName)
                                 .addComponent(seriesNameTF)
-                                .addComponent(contributorLastName)
-                                .addComponent(contributorLastNameTF))
+                                .addComponent(artistsName)
+                                .addComponent(artistTF))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(btnSearch)
                                 .addComponent(btnClear))
@@ -113,8 +113,8 @@ public class MainPanel extends JPanel {
             upcTF.setText("");
             seriesNameTF.setText("");
             issueTitleTF.setText("");
-            contributorFirstNameTF.setText("");
-            contributorLastNameTF.setText("");
+            writerTF.setText("");
+            artistTF.setText("");
             publisherNameTF.setText("");
             message.setText("");
         });
@@ -128,13 +128,13 @@ public class MainPanel extends JPanel {
     public List<ComicEntity> getResultsList() {
         Map<String, String> params = new HashMap<>();
         if (!upcTF.getText().isEmpty()) {
-            params.put(SQL.Columns.SERIES_UPC, upcTF.getText());
+            params.put(SQL.Columns.SERIES_NO, upcTF.getText());
         }
-        if (!contributorFirstNameTF.getText().isEmpty()) {
-            params.put(SQL.Columns.CONTRIB_FNAME, contributorFirstNameTF.getText());
+        if (!writerTF.getText().isEmpty()) {
+            params.put(SQL.Columns.WRITERS, writerTF.getText());
         }
-        if (!contributorLastNameTF.getText().isEmpty()) {
-            params.put(SQL.Columns.CONTRIB_LNAME, contributorLastNameTF.getText());
+        if (!artistTF.getText().isEmpty()) {
+            params.put(SQL.Columns.ARTISTS, artistTF.getText());
         }
         if (!seriesNameTF.getText().isEmpty()) {
             params.put(SQL.Columns.SERIES_NAME, seriesNameTF.getText());
