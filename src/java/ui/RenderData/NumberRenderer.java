@@ -5,8 +5,9 @@ import java.text.NumberFormat;
 
 public class NumberRenderer extends FormatRenderer {
 
-    /*
-     *  Use the specified number formatter and right align the text
+    /**
+     * Used for Number rendering in JTable
+     * Taken in its entirety from http://www.camick.com/java/source/NumberRenderer.java
      */
     public NumberRenderer(NumberFormat formatter)
     {

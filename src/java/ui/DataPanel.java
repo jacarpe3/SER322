@@ -8,12 +8,20 @@ import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Represents the DataPanel for results display
+ * @author Josh Carpenter, Yutian Zhang
+ * @version 1.0
+ */
 public class DataPanel extends JPanel {
 
     private JTable table;
     private final String[] columns = {"Cover", "Series UPC", "Series Name", "Issue Title", "Issue #",
                                                 "Writer", "Artist", "Publisher", "Publish Date", "Value"};
 
+    /**
+     * Constructor
+     */
 	public DataPanel() {
 
         DefaultTableModel model = new DefaultTableModel(null, columns);
@@ -26,6 +34,9 @@ public class DataPanel extends JPanel {
 
 	}
 
+    /**
+     * used in Listener for Search button to refresh the table display
+     */
 	public void refresh() {
 	    Object[][] data = getResultsData();
 	    table.setModel(new DefaultTableModel(data, columns));
@@ -33,6 +44,10 @@ public class DataPanel extends JPanel {
 	    GUI.getMainPanel().setMessage(data.length + " search results");
     }
 
+    /**
+     * sets the JTable object with the correct formatting
+     * @param table JTable you wish to format
+     */
     private void formatTable(JTable table) {
         table.setPreferredScrollableViewportSize(new Dimension(900, 900));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -52,6 +67,10 @@ public class DataPanel extends JPanel {
         table.setRowHeight(140);
     }
 
+    /**
+     * Supporting method that converts the List of Comic Entities into a 2-D Object array
+     * @return Object[][] containing the results to display in the JTable
+     */
 	private Object[][] getResultsData() {
 	    List<ComicEntity> list = GUI.getMainPanel().getResultsList();
         Object[][] data = new Object[list.size()][columns.length];

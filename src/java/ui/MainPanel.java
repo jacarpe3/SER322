@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 
+/**
+ * Creates the main panel layout and components with associated listeners
+ * @author Josh Carpenter, Yutian Zhang
+ * @version 1.0
+ */
 public class MainPanel extends JPanel {
 
     private JTextField upcTF = new JTextField();
@@ -19,6 +24,9 @@ public class MainPanel extends JPanel {
     private JTextField publisherNameTF = new JTextField();
     private JLabel message = new JLabel("");
 
+    /**
+     * Constructor for main panel
+     */
 	public MainPanel() {
         JSeparator separator = new JSeparator();
         JLabel head = new JLabel("Comic Book Value Look Up Tool");
@@ -99,6 +107,7 @@ public class MainPanel extends JPanel {
                         .addComponent(status)
         );
 
+        // Listeners
         btnSearch.addActionListener(e -> resultsTable.refresh());
         btnClear.addActionListener(e -> {
             upcTF.setText("");
@@ -112,6 +121,10 @@ public class MainPanel extends JPanel {
 
 	}
 
+    /**
+     * Grabs the given search text supplied by user and processes into list of results from database
+     * @return List containing ComicEntities that match the given search criteria
+     */
     public List<ComicEntity> getResultsList() {
         Map<String, String> params = new HashMap<>();
         if (!upcTF.getText().isEmpty()) {
@@ -135,6 +148,10 @@ public class MainPanel extends JPanel {
         return DBManager.getInstance().query(params);
     }
 
+    /**
+     * Allows other classes (DataPanel) to change the status message at the bottom
+     * @param msg String message you wish to display at bottom of the page
+     */
     public void setMessage(String msg) {
 	    message.setText(msg);
     }
