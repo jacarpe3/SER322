@@ -2,6 +2,7 @@ package ui;
 
 import database.ComicEntity;
 import ui.RenderData.NumberRenderer;
+import ui.RenderData.TextTableRenderer;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -16,15 +17,15 @@ import java.util.List;
 public class DataPanel extends JPanel {
 
     private JTable table;
-    private final String[] columns = {"Cover", "Series UPC", "Series Name", "Issue Title", "Issue #",
-                                                "Writer", "Artist", "Publisher", "Publish Date", "Value"};
+    private final String[] columns = {"Cover", "Series #", "Series Name", "Issue Title", "Issue #",
+                                                "Writer(s)", "Artist(s)", "Publisher", "Publish Date", "Value"};
 
     /**
      * Constructor
      */
 	public DataPanel() {
 
-        DefaultTableModel model = new DefaultTableModel(null, columns);
+        DefaultTableModel model = new NonEditableModel(null, columns);
         table = new JTable(model);
         formatTable(table);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -39,7 +40,7 @@ public class DataPanel extends JPanel {
      */
 	public void refresh() {
 	    Object[][] data = getResultsData();
-	    table.setModel(new DefaultTableModel(data, columns));
+	    table.setModel(new NonEditableModel(data, columns));
 	    formatTable(table);
 	    GUI.getMainPanel().setMessage(data.length + " search results");
     }
@@ -65,6 +66,10 @@ public class DataPanel extends JPanel {
         table.getColumnModel().getColumn(8).setPreferredWidth(120);
         table.getColumnModel().getColumn(9).setPreferredWidth(65);
         table.setRowHeight(140);
+
+        for (int i = 1; i <= 8; i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(new TextTableRenderer());
+        }
     }
 
     /**
@@ -88,4 +93,17 @@ public class DataPanel extends JPanel {
         }
         return data;
     }
+
+    private class NonEditableModel extends DefaultTableModel {
+        public NonEditableModel(Object[][] data, String[] columns) {
+            super(data, columns);
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    }
 }
+
+

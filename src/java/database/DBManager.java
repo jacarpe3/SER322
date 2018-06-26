@@ -1,6 +1,5 @@
 package database;
 
-import ui.GUI;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import java.io.*;
@@ -49,7 +48,6 @@ public class DBManager {
      * Populates the database with data
      */
     public void populateDB() {
-        GUI.getMainPanel().setMessage("Populating database...");
         getInstance().modify(
                 SQL.Create.EXTENSION,
                 SQL.Create.TABLE_PUBLISHER,
@@ -73,7 +71,6 @@ public class DBManager {
                 SQL.Insert.COMIC_ARTISTS
         );
 
-        GUI.getMainPanel().setMessage("Updating thumbnails...");
         for (int i = 1; i <= 30; i++) {
             updateImage(i);
         }
@@ -139,7 +136,7 @@ public class DBManager {
         for (String param : params.keySet()) {
             count++;
             if (!params.get(param).isEmpty()) {
-                String thisParam = param + " LIKE '%" + params.get(param) + "%'";
+                String thisParam = "upper(" + param + ") LIKE '%" + params.get(param).toUpperCase() + "%'";
                 sb.append(thisParam);
             }
             if (count < params.size()) {

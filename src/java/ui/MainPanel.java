@@ -23,6 +23,7 @@ public class MainPanel extends JPanel {
     private JTextField seriesNameTF = new JTextField();
     private JTextField publisherNameTF = new JTextField();
     private JLabel message = new JLabel("");
+    private JButton btnSearch = new JButton("Search");
 
     /**
      * Constructor for main panel
@@ -37,7 +38,6 @@ public class MainPanel extends JPanel {
         JLabel seriesName = new JLabel("Series Name");
         JLabel publisherName = new JLabel("Publisher Name");
         JPanel status = new JPanel(new BorderLayout());
-        JButton btnSearch = new JButton("Search");
         JButton btnClear = new JButton("Clear");
         DataPanel resultsTable = new DataPanel();
 
@@ -154,6 +154,10 @@ public class MainPanel extends JPanel {
      */
     public void setMessage(String msg) {
 	    message.setText(msg);
+    }
+
+    public JButton getSearchButton() {
+        return btnSearch;
     }
 
 }

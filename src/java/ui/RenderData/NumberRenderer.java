@@ -1,6 +1,7 @@
 package ui.RenderData;
 
 import javax.swing.*;
+import java.awt.*;
 import java.text.NumberFormat;
 
 public class NumberRenderer extends FormatRenderer {
@@ -13,6 +14,7 @@ public class NumberRenderer extends FormatRenderer {
     {
         super(formatter);
         setHorizontalAlignment( SwingConstants.CENTER );
+        setForeground(new Color(110, 173, 76));
     }
 
     /*

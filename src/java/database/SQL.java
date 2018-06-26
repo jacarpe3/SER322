@@ -183,7 +183,7 @@ public class SQL {
                     "(26, 'Thiago', 'Ribeiro')," +
                     "(27, 'George', 'Mann')," +
                     "(28, '', 'Hi-Fi')," +
-                    "(29, 'Carlos', 'Cabrera');" +
+                    "(29, 'Carlos', 'Cabrera')," +
                     "(30, 'Luis', 'Guerrero')," +
                     "(31, 'Tazio', 'Bettin')," +
                     "(32, 'Klebs', 'Jr');";
@@ -232,7 +232,7 @@ public class SQL {
                     "(1, 'Artist')," +
                     "(2, 'Penciller')," +
                     "(3, 'Inker')," +
-                    "(4, 'Colorist');" +
+                    "(4, 'Colorist')," +
                     "(5, 'Cover Artist');";
         public static final String COMIC_WRITERS = 
                 "INSERT INTO ComicWriters (comic, writer) VALUES" +
@@ -428,7 +428,6 @@ public class SQL {
 
     public static class Update {
         public static final String THUMBNAIL_IMAGE =  "UPDATE covers SET thumbnailImage = ? WHERE coverID = ?";
-        public static final String COVER_IMAGE =  "UPDATE covers SET coverImage = ? WHERE coverID = ?";
     }
 
     public static class Drop {
