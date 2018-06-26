@@ -69,6 +69,7 @@ public class DBManager {
                 SQL.Insert.ARTIST_ROLES,
                 SQL.Insert.COMIC_WRITERS,
                 SQL.Insert.COVERS,
+                SQL.Insert.COMIC_COVERS,
                 SQL.Insert.COMIC_ARTISTS
         );
 
