@@ -7,7 +7,7 @@ public class NumberRenderer extends FormatRenderer {
 
     /**
      * Used for Number rendering in JTable
-     * Taken in its entirety from http://www.camick.com/java/source/NumberRenderer.java
+     * @author Taken in its entirety from http://www.camick.com/java/source/NumberRenderer.java
      */
     public NumberRenderer(NumberFormat formatter)
     {
