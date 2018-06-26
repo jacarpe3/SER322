@@ -9,14 +9,12 @@ CREATE TABLE Publisher (
 );
 CREATE TABLE Contributor (
 	contribID SERIAL PRIMARY KEY,
-	fName VARCHAR (255),
-	lName VARCHAR (255)
+	fName TEXT,
+	lName TEXT
 );
 CREATE TABLE Covers (
 	coverID SERIAL PRIMARY KEY,
-	value NUMERIC,
 	artist INTEGER REFERENCES Contributor(contribID),
-	coverImage bytea,
 	thumbnailImage bytea
 );
 CREATE TABLE Series (
@@ -31,6 +29,7 @@ CREATE TABLE Comics (
 	issueTitle VARCHAR (255),
 	publisher INTEGER REFERENCES Publisher(pubID),
 	pubDate DATE,
+	value NUMERIC,
 	UNIQUE (comicSerial, seriesUPC)
 );
 CREATE TABLE ComicWriters (
@@ -54,6 +53,53 @@ CREATE TABLE ComicCovers (
 	PRIMARY KEY (comic, cover)
 );
 
+CREATE VIEW fullComicListing AS
+WITH
+	artistlist AS (
+		SELECT
+			comics.comicid AS comicid,
+			string_agg(
+				contributor.fName || ' ' ||
+				contributor.lName || ' (' ||
+				artistRoles.roleName || ')',
+				', '
+				ORDER BY contributor.fname, contributor.lname
+			) AS artists FROM contributor
+			INNER JOIN comicartists ON contributor.contribID = comicartists.artist
+			INNER JOIN artistroles ON comicartists.role = artistroles.roleid
+			INNER JOIN comics ON comicartists.comic = comics.comicid GROUP BY comicid
+	),
+	writerlist AS (
+		SELECT
+			comics.comicid AS comicid,
+			string_agg(
+				contributor.fName || ' ' ||
+				contributor.lName,
+				', '
+				ORDER BY contributor.fname, contributor.lname
+			) AS writers FROM contributor
+			INNER JOIN comicwriters ON contributor.contribid = comicwriters.writer
+			INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid
+	)
+	SELECT
+		comics.comicSerial,
+		comics.issueNum,
+		CASE
+			WHEN comics.issueTitle is NULL THEN
+				series.seriesName || ' ' || comics.issueNum
+			ELSE
+				comics.issueTitle
+		END,
+		series.seriesName,
+		writerlist.writers,
+		artistlist.artists,
+		comics.value
+    FROM
+		comics
+		INNER JOIN series ON comics.seriesUPC = series.seriesUPC
+		INNER JOIN writerlist ON writerlist.comicid = comics.comicid
+		INNER JOIN artistlist ON artistlist.comicid = comics.comicid;
+
 -- Populate some initial data
 INSERT INTO Publisher (pubID, name) VALUES
 	(1, 'Dark Horse Comics'),
@@ -63,6 +109,7 @@ INSERT INTO Publisher (pubID, name) VALUES
 	(5, 'DC Entertainment');
 
 INSERT INTO Contributor (contribID, fName, lName) VALUES
+	(0, '', 'Information Not Available'),
 	(1, 'Scott', 'Shaw'),
 	(2, 'Peter', 'Kuper'),
 	(3, 'Jimmy', 'Pulmiotti'),
@@ -101,37 +148,37 @@ INSERT INTO Series (seriesUPC, seriesName) VALUES
 	('074470683001', 'Doctor Who: The Eleventh Doctor'),
 	('074470618317', 'Doctor Who: The Lost Dimension Special');
 
-INSERT INTO Comics (comicID, comicSerial, seriesUPC, issueNum, issueTitle, publisher, pubDate) VALUES
-	(1, '00111', '074470618263', '01A', 'The Lost Dimension Alpha', 2, '2017-09-01'),
-	(2, '00121', '074470618263', '01B', 'The Lost Dimension Alpha', 2, '2017-09-01'),
-	(3, '00131', '074470618263', '01C', 'The Lost Dimension Alpha', 2, '2017-09-01'),
-	(4, '00111', '074470711117', '01A', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01'),
-	(5, '00121', '074470711117', '01B', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01'),
-	(6, '00111', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01'),
-	(7, '00121', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01'),
-	(8, '01011', '074470683001', '01A', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01'),
-	(9, '01021', '074470683001', '01B', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01'),
-	(10, '00111', '074470618317', '01A', 'The Lost Dimension Special #1', 2, '2017-10-01'),
-	(11, '00121', '074470618317', '01B', 'The Lost Dimension Special #1', 2, '2017-10-01'),
-	(12, '01511', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01'),
-	(13, '01521', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01'),
-	(14, '00211', '074470618317', '02A', 'The Lost Dimension Special #2', 2, '2017-11-01'),
-	(15, '00221', '074470618317', '02B', 'The Lost Dimension Special #2', 2, '2017-11-01'),
-	(16, '00211', '074470618263', '02A', 'The Lost Dimension Omega', 2, '2017-11-01'),
-	(17, '00221', '074470618263', '02B', 'The Lost Dimension Omega', 2, '2017-11-01'),
-	(18, '00111', '761568000849', '01A', NULL, 1, '2016-10-01'),
-	(19, '00121', '761568000849', '01B', NULL, 1, '2016-10-01'),
-	(20, '00131', '761568000849', '01C', NULL, 1, '2016-10-01'),
-	(21, '00211', '761568000849', '02A', NULL, 1, '2016-11-01'),
-	(22, '00221', '761568000849', '02B', NULL, 1, '2016-11-01'),
-	(23, '00311', '761568000849', '03A', NULL, 1, '2016-12-01'),
-	(24, '00321', '761568000849', '03B', NULL, 1, '2016-12-01'),
-	(25, '00411', '761568000849', '04A', NULL, 1, '2017-01-01'),
-	(26, '00421', '761568000849', '04B', NULL, 1, '2017-01-01'),
-	(27, '00511', '761568000849', '05A', NULL, 1, '2017-02-01'),
-	(28, '00521', '761568000849', '05B', NULL, 1, '2017-02-01'),
-	(29, '00611', '761568000849', '06A', NULL, 1, '2017-03-01'),
-	(30, '00621', '761568000849', '06B', NULL, 1, '2017-03-01');
+INSERT INTO Comics (comicID, comicSerial, seriesUPC, issueNum, issueTitle, publisher, pubDate, value) VALUES
+	(1, '00111', '074470618263', '01A', 'The Lost Dimension Alpha', 2, '2017-09-01', '1.99'),
+	(2, '00121', '074470618263', '01B', 'The Lost Dimension Alpha', 2, '2017-09-01', '2.99'),
+	(3, '00131', '074470618263', '01C', 'The Lost Dimension Alpha', 2, '2017-09-01', '3.99'),
+	(4, '00111', '074470711117', '01A', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '1.99'),
+	(5, '00121', '074470711117', '01B', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '2.99'),
+	(6, '00111', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
+	(7, '00121', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99'),
+	(8, '01011', '074470683001', '01A', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '3.99'),
+	(9, '01021', '074470683001', '01B', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '10.99'),
+	(10, '00111', '074470618317', '01A', 'The Lost Dimension Special #1', 2, '2017-10-01', '1.99'),
+	(11, '00121', '074470618317', '01B', 'The Lost Dimension Special #1', 2, '2017-10-01', '1.99'),
+	(12, '01511', '074470683001', '01A', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01', '7.99'),
+	(13, '01521', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01', '1.99'),
+	(14, '00211', '074470618317', '02A', 'The Lost Dimension Special #2', 2, '2017-11-01', '1.99'),
+	(15, '00221', '074470618317', '02B', 'The Lost Dimension Special #2', 2, '2017-11-01', '1.99'),
+	(16, '00211', '074470618263', '02A', 'The Lost Dimension Omega', 2, '2017-11-01', '1.99'),
+	(17, '00221', '074470618263', '02B', 'The Lost Dimension Omega', 2, '2017-11-01', '2.99'),
+	(18, '00111', '761568000849', '01A', NULL, 1, '2016-10-01', '1.99'),
+	(19, '00121', '761568000849', '01B', NULL, 1, '2016-10-01', '6.99'),
+	(20, '00131', '761568000849', '01C', NULL, 1, '2016-10-01', '13.99'),
+	(21, '00211', '761568000849', '02A', NULL, 1, '2016-11-01', '1.99'),
+	(22, '00221', '761568000849', '02B', NULL, 1, '2016-11-01', '1.99'),
+	(23, '00311', '761568000849', '03A', NULL, 1, '2016-12-01', '1.99'),
+	(24, '00321', '761568000849', '03B', NULL, 1, '2016-12-01', '1.99'),
+	(25, '00411', '761568000849', '04A', NULL, 1, '2017-01-01', '1.99'),
+	(26, '00421', '761568000849', '04B', NULL, 1, '2017-01-01', '1.99'),
+	(27, '00511', '761568000849', '05A', NULL, 1, '2017-02-01', '1.99'),
+	(28, '00521', '761568000849', '05B', NULL, 1, '2017-02-01', '1.99'),
+	(29, '00611', '761568000849', '06A', NULL, 1, '2017-03-01', '1.99'),
+	(30, '00621', '761568000849', '06B', NULL, 1, '2017-03-01', '2.99');
 
 INSERT INTO artistRoles (roleID, roleName) VALUES
 	(1, 'Artist'),
@@ -181,6 +228,9 @@ INSERT INTO ComicWriters (comic, writer) VALUES
 	(28, 4),
 	(29, 4),
 	(30, 4);
+
+INSERT INTO Covers (coverID, artist) VALUES
+	(0, 0);
 
 INSERT INTO ComicArtists (comic, artist, role) VALUES
 	(1, 11, 1),
