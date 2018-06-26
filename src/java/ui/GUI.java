@@ -31,6 +31,7 @@ public class GUI {
         main = new MainPanel();
         frame.add(main);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.getRootPane().setDefaultButton(getMainPanel().getSearchButton());
         frame.setPreferredSize(new Dimension(1250, 700));
         frame.pack();
         frame.setResizable(true);

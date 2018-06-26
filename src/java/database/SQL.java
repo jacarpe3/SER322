@@ -15,16 +15,15 @@ public class SQL {
     }
 
     public static class Columns {
-        public static final String SERIES_UPC = "seriesUPC";
-        public static final String CONTRIB_FNAME = "fName";
-        public static final String CONTRIB_LNAME = "lName";
+        public static final String SERIES_NO = "comicSerial";
+        public static final String WRITERS = "writers";
+        public static final String ARTISTS = "artists";
         public static final String SERIES_NAME = "seriesName";
         public static final String ISSUE_TITLE = "issueTitle";
         public static final String PUB_NAME = "name";
         public static final String PUB_DATE = "pubDate";
         public static final String ISSUE_NUM = "issueNum";
         public static final String THUMB_IMAGE = "thumbnailImage";
-        public static final String COVER_IMAGE = "coverImage";
         public static final String VALUE = "value";
     }
         
@@ -41,15 +40,12 @@ public class SQL {
         public static final String TABLE_CONTRIBUTOR =
                 "CREATE TABLE Contributor (" +
                     "contribID SERIAL PRIMARY KEY," +
-                    "fName VARCHAR (255)," +
-                    "lName VARCHAR (255)" +
+                    "fName TEXT," +
+                    "lName TEXT" +
                     ");";
         public static final String TABLE_COVERS =
                 "CREATE TABLE Covers (" +
                     "coverID SERIAL PRIMARY KEY," +
-                    "value NUMERIC," +
-                    "artist INTEGER REFERENCES Contributor(contribID)," +
-                    "coverImage bytea," +
                     "thumbnailImage bytea" +
                     ");";
         public static final String TABLE_SERIES =
@@ -66,6 +62,7 @@ public class SQL {
                     "issueTitle VARCHAR (255)," +
                     "publisher INTEGER REFERENCES Publisher(pubID)," +
                     "pubDate DATE," +
+                    "value NUMERIC," +
                     "UNIQUE (comicSerial, seriesUPC)" +
                     ");";
         public static final String TABLE_COMIC_WRITERS =
@@ -92,6 +89,59 @@ public class SQL {
                     "cover INTEGER REFERENCES Covers(coverID)," +
                     "PRIMARY KEY (comic, cover)" +
                     ");";
+        public static final String VIEW_COMIC_LISTING =
+                "CREATE VIEW fullComicListing AS " +
+                "WITH " +
+                    "ArtistList AS (" +
+                        "SELECT " +
+                            "comics.comicid AS comicid, " +
+                            "string_agg(" +
+                                "contributor.fName || ' ' || " +
+                                "contributor.lName || ' (' || " +
+                                "artistRoles.roleName || ')', " +
+                                "', ' " +
+                                "ORDER BY contributor.fname, contributor.lname" +
+                            ") AS artists FROM contributor " +
+                            "INNER JOIN comicartists ON contributor.contribID = comicartists.artist " +
+                            "INNER JOIN artistroles ON comicartists.role = artistroles.roleid " +
+                            "INNER JOIN comics ON comicartists.comic = comics.comicid GROUP BY comicid" +
+                    ")," +
+                    "WriterList AS (" +
+                        "SELECT " +
+                            "comics.comicid AS comicid," +
+                            "string_agg(" +
+                                "contributor.fName || ' ' || " +
+                                "contributor.lName, " +
+                                "', ' " +
+                                "ORDER BY contributor.fname, contributor.lname" +
+                            ") AS writers FROM contributor " +
+                            "INNER JOIN comicwriters ON contributor.contribid = comicwriters.writer " +
+                            "INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid" +
+                    ")" +
+                    "SELECT " +
+                        "Covers.thumbnailImage, " +
+                        "Comics.comicSerial, " +
+                        "Comics.issueNum, " +
+                        "CASE " +
+                            "WHEN Comics.issueTitle is NULL THEN " +
+                                "Series.seriesName || ' ' || Comics.issueNum " +
+                            "ELSE " +
+                                "Comics.issueTitle " +
+                        "END, " +
+                        "Series.seriesName, " +
+                        "WriterList.writers, " +
+                        "ArtistList.artists, " +
+                        "Publisher.name, " +
+                        "Comics.pubDate, " +
+                        "Comics.value " +
+                    "FROM " +
+                        "Comics " +
+                        "INNER JOIN ComicCovers ON Comics.comicID = ComicCovers.comic " +
+                        "INNER JOIN Covers ON ComicCovers.cover = Covers.coverID " +
+                        "INNER JOIN Series ON Comics.seriesUPC = Series.seriesUPC " +
+                        "INNER JOIN WriterList ON WriterList.comicid = Comics.comicid " +
+                        "INNER JOIN ArtistList ON ArtistList.comicid = Comics.comicid " +
+                        "INNER JOIN Publisher ON Comics.Publisher = Publisher.pubID;";
     }
     
     public static class Insert {
@@ -104,6 +154,7 @@ public class SQL {
                     "(5, 'DC Entertainment');";
         public static final String CONTRIBUTOR = 
                 "INSERT INTO Contributor (contribID, fName, lName) VALUES" +
+                    "(0, '', 'Information Not Available')," +
                     "(1, 'Scott', 'Shaw')," +
                     "(2, 'Peter', 'Kuper')," +
                     "(3, 'Jimmy', 'Pulmiotti')," +
@@ -132,7 +183,10 @@ public class SQL {
                     "(26, 'Thiago', 'Ribeiro')," +
                     "(27, 'George', 'Mann')," +
                     "(28, '', 'Hi-Fi')," +
-                    "(29, 'Carlos', 'Cabrera');";
+                    "(29, 'Carlos', 'Cabrera')," +
+                    "(30, 'Luis', 'Guerrero')," +
+                    "(31, 'Tazio', 'Bettin')," +
+                    "(32, 'Klebs', 'Jr');";
         public static final String SERIES = 
                 "INSERT INTO Series (seriesUPC, seriesName) VALUES" +
                     "('761568000849', 'Serenity')," +
@@ -142,43 +196,44 @@ public class SQL {
                     "('074470683001', 'Doctor Who: The Eleventh Doctor')," +
                     "('074470618317', 'Doctor Who: The Lost Dimension Special');";
         public static final String COMICS = 
-                "INSERT INTO Comics (comicID, comicSerial, seriesUPC, issueNum, issueTitle, publisher, pubDate) VALUES" +
-                    "(1, '00111', '074470618263', '01A', 'The Lost Dimension Alpha', 2, '2017-09-01')," +
-                    "(2, '00121', '074470618263', '01B', 'The Lost Dimension Alpha', 2, '2017-09-01')," +
-                    "(3, '00131', '074470618263', '01C', 'The Lost Dimension Alpha', 2, '2017-09-01')," +
-                    "(4, '00111', '074470711117', '01A', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01')," +
-                    "(5, '00121', '074470711117', '01B', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01')," +
-                    "(6, '00111', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01')," +
-                    "(7, '00121', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01')," +
-                    "(8, '01011', '074470683001', '01A', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01')," +
-                    "(9, '01021', '074470683001', '01B', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01')," +
-                    "(10, '00111', '074470618317', '01A', 'The Lost Dimension Special #1', 2, '2017-10-01')," +
-                    "(11, '00121', '074470618317', '01B', 'The Lost Dimension Special #1', 2, '2017-10-01')," +
-                    "(12, '01511', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01')," +
-                    "(13, '01521', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01')," +
-                    "(14, '00211', '074470618317', '02A', 'The Lost Dimension Special #2', 2, '2017-11-01')," +
-                    "(15, '00221', '074470618317', '02B', 'The Lost Dimension Special #2', 2, '2017-11-01')," +
-                    "(16, '00211', '074470618263', '02A', 'The Lost Dimension Omega', 2, '2017-11-01')," +
-                    "(17, '00221', '074470618263', '02B', 'The Lost Dimension Omega', 2, '2017-11-01')," +
-                    "(18, '00111', '761568000849', '01A', NULL, 1, '2016-10-01')," +
-                    "(19, '00121', '761568000849', '01B', NULL, 1, '2016-10-01')," +
-                    "(20, '00131', '761568000849', '01C', NULL, 1, '2016-10-01')," +
-                    "(21, '00211', '761568000849', '02A', NULL, 1, '2016-11-01')," +
-                    "(22, '00221', '761568000849', '02B', NULL, 1, '2016-11-01')," +
-                    "(23, '00311', '761568000849', '03A', NULL, 1, '2016-12-01')," +
-                    "(24, '00321', '761568000849', '03B', NULL, 1, '2016-12-01')," +
-                    "(25, '00411', '761568000849', '04A', NULL, 1, '2017-01-01')," +
-                    "(26, '00421', '761568000849', '04B', NULL, 1, '2017-01-01')," +
-                    "(27, '00511', '761568000849', '05A', NULL, 1, '2017-02-01')," +
-                    "(28, '00521', '761568000849', '05B', NULL, 1, '2017-02-01')," +
-                    "(29, '00611', '761568000849', '06A', NULL, 1, '2017-03-01')," +
-                    "(30, '00621', '761568000849', '06B', NULL, 1, '2017-03-01');";
+                "INSERT INTO Comics (comicID, comicSerial, seriesUPC, issueNum, issueTitle, publisher, pubDate, value) VALUES" +
+                    "(1, '00111', '074470618263', '01A', 'The Lost Dimension Alpha', 2, '2017-09-01', '1.99')," +
+                    "(2, '00121', '074470618263', '01B', 'The Lost Dimension Alpha', 2, '2017-09-01', '2.99')," +
+                    "(3, '00131', '074470618263', '01C', 'The Lost Dimension Alpha', 2, '2017-09-01', '3.99')," +
+                    "(4, '00111', '074470711117', '01A', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '1.99')," +
+                    "(5, '00121', '074470711117', '01B', 'The Lost Dimension Ninth Doctor Special', 2, '2017-10-01', '2.99')," +
+                    "(6, '00911', '074470682745', '01A', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99')," +
+                    "(7, '00921', '074470682745', '01B', 'The Lost Dimension Tenth Doctor Special', 2, '2017-10-01', '1.99')," +
+                    "(8, '01011', '074470683001', '01A', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '3.99')," +
+                    "(9, '01021', '074470683001', '01B', 'The Lost Dimension Eleventh Doctor Special', 2, '2017-09-01', '10.99')," +
+                    "(10, '00111', '074470618317', '01A', 'The Lost Dimension Special #1', 2, '2017-10-01', '1.99')," +
+                    "(11, '00121', '074470618317', '01B', 'The Lost Dimension Special #1', 2, '2017-10-01', '1.99')," +
+                    "(12, '01511', '074470683001', '01A', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01', '7.99')," +
+                    "(13, '01521', '074470683001', '01B', 'The Lost Dimension Twelfth Doctor Special', 2, '2017-10-01', '1.99')," +
+                    "(14, '00211', '074470618317', '02A', 'The Lost Dimension Special #2', 2, '2017-11-01', '1.99')," +
+                    "(15, '00221', '074470618317', '02B', 'The Lost Dimension Special #2', 2, '2017-11-01', '1.99')," +
+                    "(16, '00211', '074470618263', '02A', 'The Lost Dimension Omega', 2, '2017-11-01', '1.99')," +
+                    "(17, '00221', '074470618263', '02B', 'The Lost Dimension Omega', 2, '2017-11-01', '2.99')," +
+                    "(18, '00111', '761568000849', '01A', NULL, 1, '2016-10-01', '1.99')," +
+                    "(19, '00121', '761568000849', '01B', NULL, 1, '2016-10-01', '6.99')," +
+                    "(20, '00131', '761568000849', '01C', NULL, 1, '2016-10-01', '13.99')," +
+                    "(21, '00211', '761568000849', '02A', NULL, 1, '2016-11-01', '1.99')," +
+                    "(22, '00221', '761568000849', '02B', NULL, 1, '2016-11-01', '1.99')," +
+                    "(23, '00311', '761568000849', '03A', NULL, 1, '2016-12-01', '1.99')," +
+                    "(24, '00321', '761568000849', '03B', NULL, 1, '2016-12-01', '1.99')," +
+                    "(25, '00411', '761568000849', '04A', NULL, 1, '2017-01-01', '1.99')," +
+                    "(26, '00421', '761568000849', '04B', NULL, 1, '2017-01-01', '1.99')," +
+                    "(27, '00511', '761568000849', '05A', NULL, 1, '2017-02-01', '1.99')," +
+                    "(28, '00521', '761568000849', '05B', NULL, 1, '2017-02-01', '1.99')," +
+                    "(29, '00611', '761568000849', '06A', NULL, 1, '2017-03-01', '1.99')," +
+                    "(30, '00621', '761568000849', '06B', NULL, 1, '2017-03-01', '2.99');";
         public static final String ARTIST_ROLES = 
                 "INSERT INTO artistRoles (roleID, roleName) VALUES" +
                     "(1, 'Artist')," +
                     "(2, 'Penciller')," +
                     "(3, 'Inker')," +
-                    "(4, 'Colorist');";
+                    "(4, 'Colorist')," +
+                    "(5, 'Cover Artist');";
         public static final String COMIC_WRITERS = 
                 "INSERT INTO ComicWriters (comic, writer) VALUES" +
                     "(1, 10)," +
@@ -213,6 +268,7 @@ public class SQL {
                     "(18, 4)," +
                     "(19, 4)," +
                     "(20, 4)," +
+                    "(21, 4)," +
                     "(22, 4)," +
                     "(23, 4)," +
                     "(24, 4)," +
@@ -222,6 +278,71 @@ public class SQL {
                     "(28, 4)," +
                     "(29, 4)," +
                     "(30, 4);";
+        public static final String COVERS = 
+                "INSERT INTO Covers (coverID) VALUES" +
+                    "(0)," +
+                    "(1)," +
+                    "(2)," +
+                    "(3)," +
+                    "(4)," +
+                    "(5)," +
+                    "(6)," +
+                    "(7)," +
+                    "(8)," +
+                    "(9)," +
+                    "(10)," +
+                    "(11)," +
+                    "(12)," +
+                    "(13)," +
+                    "(14)," +
+                    "(15)," +
+                    "(16)," +
+                    "(17)," +
+                    "(18)," +
+                    "(19)," +
+                    "(20)," +
+                    "(21)," +
+                    "(22)," +
+                    "(23)," +
+                    "(24)," +
+                    "(25)," +
+                    "(26)," +
+                    "(27)," +
+                    "(28)," +
+                    "(29)," +
+                    "(30);";
+        public static final String COMIC_COVERS = 
+                "INSERT INTO ComicCovers (comic, cover) VALUES" +
+                    "(1,1)," +
+                    "(2,2)," +
+                    "(3,3)," +
+                    "(4,4)," +
+                    "(5,5)," +
+                    "(6,6)," +
+                    "(7,7)," +
+                    "(8,8)," +
+                    "(9,9)," +
+                    "(10,10)," +
+                    "(11,11)," +
+                    "(12,12)," +
+                    "(13,13)," +
+                    "(14,14)," +
+                    "(15,15)," +
+                    "(16,16)," +
+                    "(17,17)," +
+                    "(18,18)," +
+                    "(19,19)," +
+                    "(20,20)," +
+                    "(21,21)," +
+                    "(22,22)," +
+                    "(23,23)," +
+                    "(24,24)," +
+                    "(25,25)," +
+                    "(26,26)," +
+                    "(27,27)," +
+                    "(28,28)," +
+                    "(29,29)," +
+                    "(30,30);";
         public static final String COMIC_ARTISTS = 
                 "INSERT INTO ComicArtists (comic, artist, role) VALUES" +
                     "(1, 11, 1)," +
@@ -262,6 +383,7 @@ public class SQL {
                     "(18, 5, 1)," +
                     "(19, 5, 1)," +
                     "(20, 5, 1)," +
+                    "(21, 5, 1)," +
                     "(22, 5, 1)," +
                     "(23, 5, 1)," +
                     "(24, 5, 1)," +
@@ -282,12 +404,30 @@ public class SQL {
                     "(27, 6, 1)," +
                     "(28, 6, 1)," +
                     "(29, 6, 1)," +
-                    "(30, 6, 1);";
+                    "(30, 6, 1)," +
+                    "(3, 11, 5)," +
+                    "(3, 30, 5)," +
+                    "(6, 30, 5)," +
+                    "(6, 31, 5)," +
+                    "(10, 13, 5)," +
+                    "(14, 32, 5)," +
+                    "(18, 8, 5)," +
+                    "(19, 5, 5)," +
+                    "(20, 9, 5)," +
+                    "(21, 8, 5)," +
+                    "(22, 5, 5)," +
+                    "(23, 8, 5)," +
+                    "(24, 5, 5)," +
+                    "(25, 8, 5)," +
+                    "(26, 5, 5)," +
+                    "(27, 8, 5)," +
+                    "(28, 5, 5)," +
+                    "(29, 8, 5)," +
+                    "(30, 5, 5);";
     }
 
     public static class Update {
         public static final String THUMBNAIL_IMAGE =  "UPDATE covers SET thumbnailImage = ? WHERE coverID = ?";
-        public static final String COVER_IMAGE =  "UPDATE covers SET coverImage = ? WHERE coverID = ?";
     }
 
     public static class Drop {

@@ -13,14 +13,13 @@ public class ComicEntity {
 
     private double value;
     private LocalDate pubDate;
-    private String UPC;
+    private String seriesNo;
     private String pubName;
     private String issueTitle;
     private String seriesName;
     private String writer;
     private String artist;
     private String issueNum;
-    private ImageIcon cover;
     private ImageIcon thumbnail;
 
     public String getIssueNum() {
@@ -39,12 +38,12 @@ public class ComicEntity {
         this.pubDate = pubDate;
     }
 
-    public String getUPC() {
-        return UPC;
+    public String getSeriesNo() {
+        return seriesNo;
     }
 
-    public void setUPC(String UPC) {
-        this.UPC = UPC;
+    public void setSeriesNo(String seriesNo) {
+        this.seriesNo = seriesNo;
     }
 
     public String getPubName() {
@@ -93,14 +92,6 @@ public class ComicEntity {
 
     public void setArtist(String artist) {
         this.artist = artist;
-    }
-
-    public ImageIcon getCover() {
-        return cover;
-    }
-
-    public void setCover(ImageIcon cover) {
-        this.cover = cover;
     }
 
     public double getValue() {

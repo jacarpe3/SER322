@@ -6,7 +6,7 @@ import java.text.Format;
 
 /**
  * Used for format rendering in JTable
- * Taken in its entirety from http://www.camick.com/java/source/FormatRenderer.java
+ * @author Taken in its entirety from http://www.camick.com/java/source/FormatRenderer.java
  */
 public class FormatRenderer extends DefaultTableCellRenderer
 {
