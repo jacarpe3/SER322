@@ -48,15 +48,6 @@ public class DataPanel extends JPanel {
     }
 
     /**
-     * used in Listener for Reset button to clear the table display
-     */
-    public void clear() {
-	    table.setModel(new DefaultTableModel(null, columns));
-	    formatTable(table);
-	    GUI.getMainPanel().setMessage("", Color.BLACK);
-    }
-
-    /**
      * Deletes selected rows from the table
      * @return number of rows deleted
      */

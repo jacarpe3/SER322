@@ -121,14 +121,8 @@ public class MainPanel extends JPanel {
         });
 
         btnClear.addActionListener(e -> {
-            upcTF.setText("");
-            seriesNameTF.setText("");
-            issueTitleTF.setText("");
-            writerTF.setText("");
-            artistTF.setText("");
-            publisherNameTF.setText("");
-            setMessage("", Color.BLACK);
-            resultsTable.clear();
+            clearFields();
+            resultsTable.getAllData();
         });
 
         btnDelete.addActionListener(e -> {
@@ -136,6 +130,7 @@ public class MainPanel extends JPanel {
                     "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 int num = resultsTable.deleteSelected();
+                clearFields();
                 resultsTable.refresh(resultsTable.getAllData());
             } else {
                 JOptionPane.getRootFrame().dispose();
@@ -143,6 +138,16 @@ public class MainPanel extends JPanel {
         });
 
 	}
+
+    private void clearFields() {
+        upcTF.setText("");
+        seriesNameTF.setText("");
+        issueTitleTF.setText("");
+        writerTF.setText("");
+        artistTF.setText("");
+        publisherNameTF.setText("");
+        setMessage("", Color.BLACK);
+    }
 
     /**
      * Grabs the given search text supplied by user and processes into list of results from database
