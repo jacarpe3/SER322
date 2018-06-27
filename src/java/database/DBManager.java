@@ -1,7 +1,7 @@
 package database;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import java.io.*;
 import java.sql.*;
 import java.time.LocalDate;
@@ -39,7 +39,7 @@ public class DBManager {
      */
     public void initializeDB() {
         c = connect(SQL.Database.PS_URL);
-        executeUpdateQuery(SQL.Drop.DB);
+        executeUpdateQuery(SQL.Database.DROP);
         executeUpdateQuery(SQL.Create.DB);
         closeConnection();
     }
@@ -90,6 +90,7 @@ public class DBManager {
             ResultSet rs = stmt.executeQuery(buildQuery(params));
             while (rs.next()) {
                 ComicEntity comic = new ComicEntity();
+                comic.setComicID(rs.getInt(SQL.Columns.COMIC_ID));
                 comic.setSeriesNo(rs.getString(SQL.Columns.SERIES_NO));
                 comic.setIssueNum(rs.getString(SQL.Columns.ISSUE_NUM));
                 comic.setPubDate(rs.getObject(SQL.Columns.PUB_DATE, LocalDate.class));
@@ -112,6 +113,44 @@ public class DBManager {
     }
 
     /**
+     * Used to retrieve the cover from ComicCovers table in the DELETE function in DataPanel
+      * @param comic the comic to look for
+     * @return the cover int
+     */
+    public void deleteRow(int comic) {
+        c = connect(SQL.Database.DB_URL);
+        int cover = 0;
+        try {
+            PreparedStatement ps = c.prepareStatement(SQL.Select.COVER);
+            ps.setInt(1, comic);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                cover = rs.getInt(SQL.Columns.COVER);
+            }
+            ps = c.prepareStatement(SQL.Delete.ComicWriters.COMIC);
+            ps.setInt(1, comic);
+            ps.executeUpdate();
+            ps = c.prepareStatement(SQL.Delete.ComicArtists.COMIC);
+            ps.setInt(1, comic);
+            ps.executeUpdate();
+            ps = c.prepareStatement(SQL.Delete.ComicCovers.COMIC);
+            ps.setInt(1, comic);
+            ps.executeUpdate();
+            ps = c.prepareStatement(SQL.Delete.Comics.COMIC_ID);
+            ps.setInt(1, comic);
+            ps.executeUpdate();
+            ps = c.prepareStatement(SQL.Delete.Covers.COVER_ID);
+            ps.setInt(1, cover);
+            ps.executeUpdate();
+            ps.close();
+            c.close();
+        } catch (SQLException e) {
+            e.getMessage();
+        }
+
+    }
+
+    /**
      * Used for modify operations such as CREATE, INSERT, DELETE, and UPDATE
      * @param sqlQuery sql string to execute
      */
@@ -131,6 +170,10 @@ public class DBManager {
     private static String buildQuery(Map<String, String> params) {
 
         StringBuilder sb = new StringBuilder("SELECT * FROM fullComicListing WHERE ");
+
+        if (params.keySet().contains(SQL.Select.ALL.getClass().getSimpleName())) {
+            return SQL.Select.ALL;
+        }
 
         int count = 0;
         for (String param : params.keySet()) {
@@ -184,7 +227,13 @@ public class DBManager {
         try {
             c = DriverManager.getConnection(url, SQL.Database.UN, SQL.Database.PW);
         } catch (SQLException e) {
-            //Ignore
+            if (e.getMessage().contains("password authentication failed")) {
+                String msg = "<html>PostgreSQL superuser 'postgres' password is incorrect!<br/>" +
+                        "Please login and run the following command:<br/><br/>" +
+                        "ALTER USER postgres WITH PASSWORD 'test123';<html>";
+                JLabel lbl = new JLabel(msg, JLabel.CENTER);
+                JOptionPane.showConfirmDialog(null, lbl, "Authentication Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+            }
         }
         return c;
     }

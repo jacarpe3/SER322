@@ -11,6 +11,7 @@ import java.time.LocalDate;
  */
 public class ComicEntity {
 
+    private int comicID;
     private double value;
     private LocalDate pubDate;
     private String seriesNo;
@@ -100,5 +101,13 @@ public class ComicEntity {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public int getComicID() {
+        return comicID;
+    }
+
+    public void setComicID(int comicID) {
+        this.comicID = comicID;
     }
 }

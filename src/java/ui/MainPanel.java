@@ -38,7 +38,8 @@ public class MainPanel extends JPanel {
         JLabel seriesName = new JLabel("Series Name");
         JLabel publisherName = new JLabel("Publisher Name");
         JPanel status = new JPanel(new BorderLayout());
-        JButton btnClear = new JButton("Clear");
+        JButton btnClear = new JButton("Clear All");
+        JButton btnDelete = new JButton("Delete Selected");
         DataPanel resultsTable = new DataPanel();
 
         status.add(message, BorderLayout.SOUTH);
@@ -75,7 +76,8 @@ public class MainPanel extends JPanel {
                                         .addComponent(artistTF)))
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnSearch)
-                                .addComponent(btnClear))
+                                .addComponent(btnClear)
+                                .addComponent(btnDelete))
                         .addComponent(separator)
                         .addComponent(resultsTable)
                         .addGroup(layout.createSequentialGroup()
@@ -102,13 +104,22 @@ public class MainPanel extends JPanel {
                                 .addComponent(artistTF))
                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(btnSearch)
-                                .addComponent(btnClear))
+                                .addComponent(btnClear)
+                                .addComponent(btnDelete))
                         .addComponent(resultsTable)
                         .addComponent(status)
         );
 
         // Listeners
-        btnSearch.addActionListener(e -> resultsTable.refresh());
+        btnSearch.addActionListener(e -> {
+            if (upcTF.getText().isEmpty() && seriesNameTF.getText().isEmpty() && issueTitleTF.getText().isEmpty() &&
+                    writerTF.getText().isEmpty() && artistTF.getText().isEmpty() && publisherNameTF.getText().isEmpty()) {
+                setMessage("Search parameters missing!", Color.RED);
+            } else {
+                resultsTable.refresh(resultsTable.getResultsData());
+            }
+        });
+
         btnClear.addActionListener(e -> {
             upcTF.setText("");
             seriesNameTF.setText("");
@@ -116,7 +127,19 @@ public class MainPanel extends JPanel {
             writerTF.setText("");
             artistTF.setText("");
             publisherNameTF.setText("");
-            message.setText("");
+            setMessage("", Color.BLACK);
+            resultsTable.clear();
+        });
+
+        btnDelete.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Delete selected comic(s)... Are you sure?",
+                    "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (choice == JOptionPane.YES_OPTION) {
+                int num = resultsTable.deleteSelected();
+                resultsTable.refresh(resultsTable.getAllData());
+            } else {
+                JOptionPane.getRootFrame().dispose();
+            }
         });
 
 	}
@@ -152,8 +175,9 @@ public class MainPanel extends JPanel {
      * Allows other classes (DataPanel) to change the status message at the bottom
      * @param msg String message you wish to display at bottom of the page
      */
-    public void setMessage(String msg) {
+    public void setMessage(String msg, Color color) {
 	    message.setText(msg);
+	    message.setForeground(color);
     }
 
     public JButton getSearchButton() {
