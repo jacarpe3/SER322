@@ -81,6 +81,7 @@ WITH
 			INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid
 	)
 	SELECT
+		Comics.comicID,
 		Covers.thumbnailImage,
 		Comics.comicSerial,
 		Comics.issueNum,
