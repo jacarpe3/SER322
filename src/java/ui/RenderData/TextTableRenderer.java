@@ -12,7 +12,10 @@ import java.awt.*;
  */
 public class TextTableRenderer extends JTextPane implements TableCellRenderer {
 
-    public TextTableRenderer() {
+    private JTable table;
+
+    public TextTableRenderer(JTable table) {
+        this.table = table;
         setEditorKit(new MyEditorKit());
         SimpleAttributeSet attributes = new SimpleAttributeSet();
         StyleConstants.setAlignment(attributes, StyleConstants.ALIGN_CENTER);
@@ -21,6 +24,13 @@ public class TextTableRenderer extends JTextPane implements TableCellRenderer {
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        if (isSelected) {
+            setBackground(table.getSelectionBackground());
+            setForeground(table.getSelectionForeground());
+        } else {
+            setBackground(table.getBackground());
+            setForeground(table.getForeground());
+        }
         setText((value == null) ? "" : value.toString());
         return this;
     }

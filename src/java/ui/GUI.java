@@ -6,7 +6,7 @@ import java.awt.*;
 
 /**
  * Main class for the GUI of the application
- * @author Josh Carpenter, Yutian Zhang
+ * @author Josh Carpenter
  * @version 1.0
  */
 public class GUI {
@@ -27,9 +27,10 @@ public class GUI {
      */
     public static void initializeGUI() {
 
-        JFrame frame = new JFrame();
         main = new MainPanel();
+        JFrame frame = new JFrame();
         frame.add(main);
+        frame.setTitle("Comic Book Value Look Up Tool");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.getRootPane().setDefaultButton(getMainPanel().getSearchButton());
         frame.setPreferredSize(new Dimension(1250, 700));

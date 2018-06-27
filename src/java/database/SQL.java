@@ -12,6 +12,7 @@ public class SQL {
         static final String DB_URL = "jdbc:postgresql://localhost:5432/ser322comics";
         static final String UN = "postgres";
         static final String PW = "test123";
+        public static final String DROP = "DROP DATABASE ser322comics;";
     }
 
     public static class Columns {
@@ -25,6 +26,8 @@ public class SQL {
         public static final String ISSUE_NUM = "issueNum";
         public static final String THUMB_IMAGE = "thumbnailImage";
         public static final String VALUE = "value";
+        public static final String COMIC_ID = "comicID";
+        public static final String COVER = "cover";
     }
         
     public static class Create {
@@ -119,6 +122,7 @@ public class SQL {
                             "INNER JOIN comics ON comicwriters.comic = comics.comicid GROUP BY comicid" +
                     ")" +
                     "SELECT " +
+                        "Comics.comicID, " +
                         "Covers.thumbnailImage, " +
                         "Comics.comicSerial, " +
                         "Comics.issueNum, " +
@@ -430,8 +434,28 @@ public class SQL {
         public static final String THUMBNAIL_IMAGE =  "UPDATE covers SET thumbnailImage = ? WHERE coverID = ?";
     }
 
-    public static class Drop {
-        public static final String DB = "DROP DATABASE ser322comics;";
+    public static class Select {
+        public static final String ALL = "SELECT * FROM fullComicListing;";
+        public static final String COVER = "SELECT cover FROM ComicCovers WHERE comic = ?";
+    }
+
+    public static class Delete {
+        public static class ComicWriters {
+            public static final String COMIC = "DELETE FROM ComicWriters WHERE comic = ?";
+        }
+        public static class ComicArtists {
+            public static final String COMIC = "DELETE FROM ComicArtists WHERE comic = ?";
+        }
+        public static class ComicCovers {
+            public static final String COMIC = "DELETE FROM ComicCovers WHERE comic = ?";
+        }
+        public static class Comics {
+            public static final String COMIC_ID = "DELETE FROM Comics WHERE comicID = ?";
+        }
+        public static class Covers {
+            public static final String COVER_ID = "DELETE FROM Covers WHERE coverID = ?";
+        }
+
     }
     
 }
